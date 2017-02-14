@@ -1,0 +1,105 @@
+{
+	"ImportPath": "github.com/innovandalism/shodan",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v75",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/bwmarrin/discordgo",
+			"Comment": "v0.15.0",
+			"Rev": "5835676872d7fa65ee37b32672079c4ede2c1855"
+		},
+		{
+			"ImportPath": "github.com/certifi/gocertifi",
+			"Comment": "2017.01.23",
+			"Rev": "03be5e6bb9874570ea7fb0961225d193cbc374c5"
+		},
+		{
+			"ImportPath": "github.com/elazarl/go-bindata-assetfs",
+			"Rev": "9a6736ed45b44bf3835afeebb3034b57ed329f3e"
+		},
+		{
+			"ImportPath": "github.com/getsentry/raven-go",
+			"Rev": "3f7439d3e74d88e21d196ba20eb61a5a958bc118"
+		},
+		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Comment": "v1.1.0-19-gc36f2fe",
+			"Rev": "c36f2fe5c330f0ac404b616b96c438b8616b1aaf"
+		},
+		{
+			"ImportPath": "github.com/vharitonsky/iniflags",
+			"Comment": "v.1.0-32-g94db042",
+			"Rev": "94db042d45d83a94a8cfc494a6800ce1b5edd5e4"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/nacl/secretbox",
+			"Rev": "dc137beb6cce2043eb6b5f223ab8bf51c32459f4"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/poly1305",
+			"Rev": "dc137beb6cce2043eb6b5f223ab8bf51c32459f4"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/salsa20/salsa",
+			"Rev": "dc137beb6cce2043eb6b5f223ab8bf51c32459f4"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2",
+			"Comment": "r2016.08.01-5-g3f83fa5",
+			"Rev": "3f83fa5005286a7fe593b055f0d7771a7dce4655"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2/bson",
+			"Comment": "r2016.08.01-5-g3f83fa5",
+			"Rev": "3f83fa5005286a7fe593b055f0d7771a7dce4655"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2/internal/json",
+			"Comment": "r2016.08.01-5-g3f83fa5",
+			"Rev": "3f83fa5005286a7fe593b055f0d7771a7dce4655"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2/internal/sasl",
+			"Comment": "r2016.08.01-5-g3f83fa5",
+			"Rev": "3f83fa5005286a7fe593b055f0d7771a7dce4655"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2/internal/scram",
+			"Comment": "r2016.08.01-5-g3f83fa5",
+			"Rev": "3f83fa5005286a7fe593b055f0d7771a7dce4655"
+		},
+		{
+			"ImportPath": "gopkg.in/redis.v5",
+			"Comment": "v5.2.4",
+			"Rev": "2fe9c5cc0a8da9faeba3a45511a4ece8f7e37dc2"
+		},
+		{
+			"ImportPath": "gopkg.in/redis.v5/internal",
+			"Comment": "v5.2.4",
+			"Rev": "2fe9c5cc0a8da9faeba3a45511a4ece8f7e37dc2"
+		},
+		{
+			"ImportPath": "gopkg.in/redis.v5/internal/consistenthash",
+			"Comment": "v5.2.4",
+			"Rev": "2fe9c5cc0a8da9faeba3a45511a4ece8f7e37dc2"
+		},
+		{
+			"ImportPath": "gopkg.in/redis.v5/internal/hashtag",
+			"Comment": "v5.2.4",
+			"Rev": "2fe9c5cc0a8da9faeba3a45511a4ece8f7e37dc2"
+		},
+		{
+			"ImportPath": "gopkg.in/redis.v5/internal/pool",
+			"Comment": "v5.2.4",
+			"Rev": "2fe9c5cc0a8da9faeba3a45511a4ece8f7e37dc2"
+		},
+		{
+			"ImportPath": "gopkg.in/redis.v5/internal/proto",
+			"Comment": "v5.2.4",
+			"Rev": "2fe9c5cc0a8da9faeba3a45511a4ece8f7e37dc2"
+		}
+	]
+}

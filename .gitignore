@@ -1,0 +1,3 @@
+.idea
+modules/serenity/
+!modules/serenity/hint.go
