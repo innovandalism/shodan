@@ -47,7 +47,11 @@ const VersionGitHash string = "%s"`
 }
 
 func getGithash() string {
-	cmd := exec.Command("/usr/bin/git", "log", "--format=%H", "-n", "1")
+	gitpath, err := exec.LookPath("git")
+	if err != nil {
+		panic(err)
+	}
+	cmd := exec.Command(gitpath, "log", "--format=%H", "-n", "1")
 	cmd.Dir, _ = filepath.Abs(".")
 	r, w, err := os.Pipe()
 	cmd.Stdout = w
@@ -65,7 +69,11 @@ func getGithash() string {
 }
 
 func getGitIsDirty() bool {
-	cmd := exec.Command("/usr/bin/git", "status", "-s")
+	gitpath, err := exec.LookPath("git")
+	if err != nil {
+		panic(err)
+	}
+	cmd := exec.Command(gitpath, "status", "-s")
 	cmd.Dir, _ = filepath.Abs(".")
 	r, w, err := os.Pipe()
 	cmd.Stdout = w

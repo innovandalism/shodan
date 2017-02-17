@@ -41,12 +41,10 @@ func Run() {
 	// check our required set of flags
 	if len(*token) == 0 {
 		panic(errors.New("Discord token must be provided"))
-		return
 	}
 
 	if len(*addr) == 0 && !*noweb {
 		panic(errors.New("either web_addr or web_disable must be provided"))
-		return
 	}
 
 	if len(*dsn) != 0 {
