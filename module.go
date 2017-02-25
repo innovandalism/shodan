@@ -9,17 +9,22 @@ var Loader = &ModuleLoader{
 	Modules: []ModuleInstance{},
 }
 
+// Type ModuleInstance holds a module and its current state.
+// This glue is needed because the Modules are global to the process.
 type ModuleInstance struct {
 	Module  *Module
 	Enabled *bool
 }
 
+// A module represents a loadable piece of code that has been added at compile-time
+// Modules are, by nature of them being loaded though init(), global.
 type Module interface {
 	GetIdentifier() string
 	Attach(*Shodan)
 	FlagHook()
 }
 
+// A ModuleLoader, to hold ModuleInstances.
 type ModuleLoader struct {
 	Modules []ModuleInstance
 }
@@ -34,7 +39,7 @@ func (loader *ModuleLoader) LoadModule(m Module) {
 	loader.Modules = append(loader.Modules, instance)
 }
 
-// Notifies all modules that it is now time to register your flags if any are required.
+// Notifies all modules that it is now time to register flags if any are required.
 // Also adds m_modulename boolean flag to enable the module. All modules are disabled by default.
 func (loader *ModuleLoader) FlagHook() {
 	for _, moduleInstance := range Loader.Modules {
@@ -44,7 +49,7 @@ func (loader *ModuleLoader) FlagHook() {
 	}
 }
 
-// Attaches enabled modules by handing them the Shodan object.
+// Attaches enabled modules to the session.
 func (loader *ModuleLoader) Attach(session *Shodan) {
 	for _, moduleInstance := range Loader.Modules {
 		m := *moduleInstance.Module

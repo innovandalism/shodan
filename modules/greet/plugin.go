@@ -1,11 +1,10 @@
-package classify
+package greet
 
 import (
 	"github.com/innovandalism/shodan"
 )
 
 type Module struct {
-
 }
 
 var mod = Module{}
@@ -15,7 +14,7 @@ func init() {
 }
 
 func (_ *Module) GetIdentifier() string {
-	return "classify"
+	return "greet"
 }
 
 func (m *Module) FlagHook() {
@@ -23,5 +22,5 @@ func (m *Module) FlagHook() {
 }
 
 func (m *Module) Attach(session *shodan.Shodan) {
-
+	session.GetCommandStack().RegisterCommand(&GreetChannelCmd{})
 }

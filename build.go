@@ -63,6 +63,9 @@ func getGithash() string {
 	w.Close()
 
 	x, err := ioutil.ReadAll(r)
+	if err != nil {
+		panic(err)
+	}
 	commit := fmt.Sprintf("%s", x)
 	commit = strings.Trim(commit, "\n")
 	return commit
@@ -85,6 +88,9 @@ func getGitIsDirty() bool {
 	w.Close()
 
 	x, err := ioutil.ReadAll(r)
+	if err != nil {
+		panic(err)
+	}
 	haystack := fmt.Sprintf("%s", x)
 	return len(haystack) > 0
 }

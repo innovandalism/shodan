@@ -5,6 +5,7 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
+// Receives messages on a channel and logs them to MongoDB. Blocking.
 func MongoLogger(uri *string, dataChan chan *LogMessage) {
 	session, err := mgo.Dial(*uri)
 	if err != nil {

@@ -2,10 +2,10 @@ package oauth
 
 import (
 	"fmt"
-	Discord "github.com/bwmarrin/discordgo"
 	"github.com/innovandalism/shodan/api"
 	"github.com/innovandalism/shodan/bindata"
 	"net/http"
+	"errors"
 )
 
 type TokenTestResponse struct {
@@ -13,10 +13,13 @@ type TokenTestResponse struct {
 	User  interface{} `json:"user"`
 }
 
+type ExchangeTokenRequest struct {
+	Code string `json:"code"`
+}
+
 func handleAuthenticate(w http.ResponseWriter, _ *http.Request) {
-	uri := fmt.Sprintf("https://discordapp.com/oauth2/authorize?client_id=%s&scope=identify&response_type=token&redirect_uri=%s", *mod.clientid, *mod.returnuri)
-	w.Header().Add("Location", uri)
-	w.WriteHeader(301)
+	uri := fmt.Sprintf("https://discordapp.com/oauth2/authorize?client_id=%s&scope=identify&response_type=code&redirect_uri=%s", *mod.clientid, *mod.returnuri)
+	api.Forward(w, uri)
 }
 
 func handleCallback(w http.ResponseWriter, _ *http.Request) {
@@ -24,41 +27,33 @@ func handleCallback(w http.ResponseWriter, _ *http.Request) {
 	fmt.Fprintf(w, "%s", page)
 }
 
-func fetchProfile(token string) (error, *Discord.User) {
-	t := fmt.Sprintf("Bearer %s", token)
-	s, err := Discord.New(t)
-	defer s.Close()
-	if err != nil {
-		return err, nil
-	}
-	u, err := s.User("@me")
-	if err != nil {
-		return err, nil
-	}
-	return nil, u
-}
-
-func handleTokenTest(w http.ResponseWriter, r *http.Request) {
-	req := api.ReadRequest(r)
-	if len(req.Token) < 1 {
-		res := api.ResponseEnvelope{
-			Status: 500,
-			Error:  "Token not found",
-		}
-		api.SendResponse(w, &res)
+func handleExchangeToken(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+	if code == "" {
+		api.ErrorBadRequest(w, errors.New("Code not found"))
 		return
 	}
-	err, u := fetchProfile(req.Token)
-
-	var res api.ResponseEnvelope
+	err, tokenInfo := exchangeDiscordToken(code)
 	if err != nil {
-		res = api.ResponseEnvelope{
-			Status: 403,
-			Error:  fmt.Sprintf("%s", err),
-			Data: TokenTestResponse{
-				Token: req.Token,
-			},
-		}
+		api.ErrorInternalServerError(w, err)
+		return
+	}
+	fmt.Fprint(w, tokenInfo.AccessToken)
+}
+
+func handleGetUserProfile(w http.ResponseWriter, r *http.Request) {
+	var res api.ResponseEnvelope
+	req, err := api.ReadRequest(r)
+	if err != nil {
+		api.ErrorInternalServerError(w, err)
+	}
+	if len(req.Token) < 1 {
+		api.ErrorBadRequest(w, errors.New("Token is missing"))
+	}
+	u, err := api.FetchProfile(req.Token)
+
+	if err != nil {
+		api.ErrorUnauthorized(w, err)
 	} else {
 		res = api.ResponseEnvelope{
 			Status: 200,

@@ -32,10 +32,10 @@ func (vc *VersionCommand) Invoke(ci *shodan.CommandInvocation) bool {
 			{"Modules", getPluginList(), false},
 			{"Code", "https://github.com/innovandalism/shodan", false},
 		},
-		URL:    "https://shodan-bot.neocities.org/",
+		URL:    "https://github.com/innovandalism/shodan",
 		Author: &discordgo.MessageEmbedAuthor{URL: "https://innovandalism.eu", Name: "Innovandalism"},
 	}
-	_, err := ci.Session.ChannelMessageSendEmbed(ci.Event.ChannelID, me)
+	err := ci.Helpers.ReplyEmbed(me)
 	if err != nil {
 		util.ReportThreadError(false, err)
 	}

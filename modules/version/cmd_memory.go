@@ -55,7 +55,7 @@ func (command *MemoryCommand) Invoke(ci *shodan.CommandInvocation) bool {
 			{"DebugGC", strconv.FormatBool(mod.memStats.DebugGC), true},
 		},
 	}
-	_, err := ci.Session.ChannelMessageSendEmbed(ci.Event.ChannelID, me)
+	err := ci.Helpers.ReplyEmbed(me)
 	if err != nil {
 		util.ReportThreadError(false, err)
 	}

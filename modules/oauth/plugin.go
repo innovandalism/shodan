@@ -29,6 +29,7 @@ func (m *Module) FlagHook() {
 
 func (m *Module) Attach(session *shodan.Shodan) {
 	session.GetMux().HandleFunc("/oauth/authenticate/", handleAuthenticate)
-	session.GetMux().HandleFunc("/oauth/callback/", handleCallback)
-	session.GetMux().HandleFunc("/oauth/testtoken/", handleTokenTest)
+	session.GetMux().HandleFunc("/oauth/callback/", handleExchangeToken)
+	session.GetMux().HandleFunc("/oauth/exchange/", handleGetUserProfile)
+	session.GetMux().HandleFunc("/user/profile/", handleGetUserProfile)
 }

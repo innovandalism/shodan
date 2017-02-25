@@ -15,6 +15,20 @@ type ThreadError struct {
 	Error   error
 }
 
+type DebuggableError struct{
+	error string
+	stack *raven.Stacktrace
+	packet *raven.Packet
+}
+
+func (e *DebuggableError) Error() string {
+	return e.error
+}
+
+func (e *DebuggableError) Capture() {
+	raven.DefaultClient.Capture(e.packet, nil)
+}
+
 func errorMessage(err error) {
 	fmt.Printf("Shodan %d.%d.%d (%s) has crashed\n", config.VersionMajor, config.VersionMinor, config.VersionRevision, config.VersionGitHash)
 	fmt.Println("")
@@ -51,6 +65,7 @@ func ErrorHandler() {
 	}
 }
 
+//
 func ReportThreadError(isFatal bool, error error) {
 	if error == nil {
 		return
@@ -68,9 +83,8 @@ func ReportThreadError(isFatal bool, error error) {
 		IsFatal: isFatal,
 		Error:   error,
 	}
-	if isFatal {
-		runtime.Goexit()
-	}
+	// goodbye cruel world
+	runtime.Goexit()
 }
 
 func GetThreadErrorChannel() chan *ThreadError {
@@ -78,4 +92,15 @@ func GetThreadErrorChannel() chan *ThreadError {
 		errorChannel = make(chan *ThreadError, 10)
 	}
 	return errorChannel
+}
+
+func WrapError(e error) (error) {
+	var de DebuggableError = DebuggableError{}
+	if e == nil {
+		panic("Bug: WrapError called with nil. This should never happen.")
+	}
+	de.error = e.Error()
+	de.stack = raven.NewStacktrace(1, 2, nil)
+	de.packet = raven.NewPacket(e.Error(), raven.NewException(e, de.stack))
+	return de
 }

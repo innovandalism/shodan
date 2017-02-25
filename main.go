@@ -1,3 +1,4 @@
+// Package shodan provides core functionality for writing a Discord bot
 package shodan
 
 import (
@@ -6,15 +7,17 @@ import (
 	"fmt"
 	"github.com/getsentry/raven-go"
 	"github.com/innovandalism/shodan/config"
+	shodanRedis "github.com/innovandalism/shodan/services/redis"
 	"github.com/innovandalism/shodan/util"
 	"github.com/vharitonsky/iniflags"
 	"math/rand"
 	"os"
 	"time"
+	"gopkg.in/redis.v5"
 )
 
-// Invokes the main SHODAN loop, starting HTTP listeners and Discordgo.
-// Meant to be called from an external package that imports your modules
+// Invokes the main loop, starting HTTP listeners and Discordgo.
+// Meant to be called from an external package after importing additional modules.
 func Run() {
 	// catch-all error handler
 	defer util.ErrorHandler()
@@ -26,10 +29,11 @@ func Run() {
 
 	// essential flags
 	var (
-		token = flag.String("token", config.DefaultToken, "Discord Bot Authentication Token")
-		addr  = flag.String("web_addr", "", "Address to bind HTTP listener to")
-		noweb = flag.Bool("web_disable", false, "Disable WebUI")
-		dsn   = flag.String("dsn", "", "Sentry DSN")
+		token     = flag.String("token", config.DefaultToken, "Discord Bot Authentication Token")
+		addr      = flag.String("web_addr", "", "Address to bind HTTP listener to")
+		noweb     = flag.Bool("web_disable", false, "Disable WebUI")
+		dsn       = flag.String("dsn", "", "Sentry DSN")
+		redis_uri = flag.String("redis", "redis://127.0.0.1/", "Redis URI")
 	)
 
 	// notify all modules that this is the last chance to ask for flags
@@ -51,9 +55,16 @@ func Run() {
 		raven.SetDSN(*dsn)
 	}
 
+	// set up redis
+	session.redis = &shodanRedis.ShodanRedis{}
+	options, err := redis.ParseURL(*redis_uri)
+	util.PanicOnError(err)
+	session.redis.Init(options)
+
+	// raven should receive the git hash when crashing
 	raven.SetRelease(config.VersionGitHash)
 
-	err := session.InitDiscord(token)
+	err = session.InitDiscord(token)
 	util.PanicOnError(err)
 
 	if !*noweb {
@@ -61,8 +72,11 @@ func Run() {
 	}
 
 	session.Connect()
+
+	// because discordgo returns immediately and starts its goroutines in the background, we defer closing the session here
 	defer session.GetDiscord().Close()
 
+	// Setup channels to react to in the main goroutine
 	signalChannel := util.MakeSignalChannel()
 	threadErrorChannel := util.GetThreadErrorChannel()
 

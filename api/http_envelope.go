@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"github.com/innovandalism/shodan/util"
 )
 
 type RequestEnvelope struct {
@@ -18,24 +19,30 @@ type ResponseEnvelope struct {
 	Data   interface{} `json:"data"`
 }
 
-func ReadRequest(r *http.Request) *RequestEnvelope {
+func ReadRequest(r *http.Request) (*RequestEnvelope, error) {
 	req := RequestEnvelope{}
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		panic(err)
+		err = util.WrapError(err)
+		return nil, err
 	}
 	err = json.Unmarshal(body, &req)
 	if err != nil {
-		panic(err)
+		err = util.WrapError(err)
+		return nil, err
 	}
-	return &req
+	return &req, nil
 }
 
-func SendResponse(w http.ResponseWriter, res *ResponseEnvelope) {
+func SendResponse(w http.ResponseWriter, res *ResponseEnvelope) (error) {
 	w.WriteHeader(int(res.Status))
 	resBytes, err := json.Marshal(res)
 	if err != nil {
-		panic(err)
+		return err
 	}
-	fmt.Fprintf(w, "%s", resBytes)
+	_, err = fmt.Fprintf(w, "%s", resBytes)
+	if err != nil {
+		return err
+	}
+	return nil
 }

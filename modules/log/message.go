@@ -2,6 +2,7 @@ package log
 
 import "time"
 
+// A message to be logged to the backend database
 type LogMessage struct {
 	ID                  string
 	Guild               string

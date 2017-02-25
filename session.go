@@ -5,6 +5,7 @@ import (
 	Discord "github.com/bwmarrin/discordgo"
 	"github.com/innovandalism/shodan/util"
 	"net/http"
+	"github.com/innovandalism/shodan/services/redis"
 )
 
 type Shodan struct {
@@ -12,6 +13,7 @@ type Shodan struct {
 	moduleLoader *ModuleLoader
 	mux          *http.ServeMux
 	cmdStack     *CommandStack
+	redis	     *redis.ShodanRedis
 }
 
 func (session *Shodan) GetDiscord() *Discord.Session {
@@ -24,6 +26,10 @@ func (session *Shodan) GetMux() *http.ServeMux {
 
 func (session *Shodan) GetCommandStack() *CommandStack {
 	return session.cmdStack
+}
+
+func (session *Shodan) GetRedis() *redis.ShodanRedis {
+	return session.redis
 }
 
 func Init() *Shodan {
