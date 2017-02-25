@@ -19,7 +19,7 @@ func (vc *VersionCommand) GetNames() []string {
 	return []string{"version", "info"}
 }
 
-func (vc *VersionCommand) Invoke(ci *shodan.CommandInvocation) bool {
+func (vc *VersionCommand) Invoke(ci *shodan.CommandInvocation) error {
 	v := fmt.Sprintf("%d.%d.%d", config.VersionMajor, config.VersionMinor, config.VersionRevision)
 	me := &discordgo.MessageEmbed{
 		Type:        "rich",
@@ -37,9 +37,9 @@ func (vc *VersionCommand) Invoke(ci *shodan.CommandInvocation) bool {
 	}
 	err := ci.Helpers.ReplyEmbed(me)
 	if err != nil {
-		util.ReportThreadError(false, err)
+		return util.WrapError(err)
 	}
-	return true
+	return nil
 }
 
 func getPluginList() string {

@@ -14,7 +14,7 @@ func (command *MemoryCommand) GetNames() []string {
 	return []string{"memory", "mem"}
 }
 
-func (command *MemoryCommand) Invoke(ci *shodan.CommandInvocation) bool {
+func (command *MemoryCommand) Invoke(ci *shodan.CommandInvocation) error {
 	runtime.ReadMemStats(mod.memStats)
 	me := &discordgo.MessageEmbed{
 		Type:        "rich",
@@ -57,7 +57,7 @@ func (command *MemoryCommand) Invoke(ci *shodan.CommandInvocation) bool {
 	}
 	err := ci.Helpers.ReplyEmbed(me)
 	if err != nil {
-		util.ReportThreadError(false, err)
+		return util.WrapError(err)
 	}
-	return true
+	return nil
 }

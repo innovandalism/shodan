@@ -15,9 +15,9 @@ type ThreadError struct {
 	Error   error
 }
 
-type DebuggableError struct{
-	error string
-	stack *raven.Stacktrace
+type DebuggableError struct {
+	error  string
+	stack  *raven.Stacktrace
 	packet *raven.Packet
 }
 
@@ -65,15 +65,16 @@ func ErrorHandler() {
 	}
 }
 
-//
+// Reports the current thread as failed, captures the error if it is debuggable and kills the goroutine
 func ReportThreadError(isFatal bool, error error) {
 	if error == nil {
 		return
 	}
 
-	stack := raven.NewStacktrace(1, 2, nil)
-	packet := raven.NewPacket(error.Error(), raven.NewException(error, stack))
-	raven.DefaultClient.Capture(packet, nil)
+	de, isDebuggable := error.(*DebuggableError)
+	if isDebuggable {
+		de.Capture()
+	}
 
 	if isFatal {
 		errorMessage(error)
@@ -83,6 +84,7 @@ func ReportThreadError(isFatal bool, error error) {
 		IsFatal: isFatal,
 		Error:   error,
 	}
+
 	// goodbye cruel world
 	runtime.Goexit()
 }
@@ -94,11 +96,20 @@ func GetThreadErrorChannel() chan *ThreadError {
 	return errorChannel
 }
 
-func WrapError(e error) (error) {
-	var de DebuggableError = DebuggableError{}
+// Wraps any error into a DebuggableError. Never double-wraps.
+func WrapError(e error) error {
+	var de = &DebuggableError{}
 	if e == nil {
 		panic("Bug: WrapError called with nil. This should never happen.")
 	}
+
+	// make sure we don't double-wrap the error
+	_, isDebuggableError := e.(*DebuggableError)
+	if isDebuggableError {
+		return e
+	}
+
+	// attach the actual debug information
 	de.error = e.Error()
 	de.stack = raven.NewStacktrace(1, 2, nil)
 	de.packet = raven.NewPacket(e.Error(), raven.NewException(e, de.stack))

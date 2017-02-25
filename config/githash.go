@@ -1,3 +1,3 @@
 package config
 
-const VersionGitHash string = "cc470753a80a2c76133493dbeef36aaccc06b316"
+const VersionGitHash string = "65f857f11d36e609c01703590e1b49f03cb89799"
