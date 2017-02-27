@@ -6,6 +6,7 @@ import (
 	"github.com/innovandalism/shodan/bindata"
 	"net/http"
 	"errors"
+	"github.com/dgrijalva/jwt-go"
 )
 
 type TokenTestResponse struct {
@@ -38,7 +39,26 @@ func handleExchangeToken(w http.ResponseWriter, r *http.Request) {
 		api.ErrorInternalServerError(w, err)
 		return
 	}
-	fmt.Fprint(w, tokenInfo.AccessToken)
+	user, err := api.FetchProfile(tokenInfo.AccessToken)
+	if err != nil {
+		api.ErrorInternalServerError(w, err)
+		return
+	}
+	id, err := mod.shodan.GetPostgres().AddToken(tokenInfo.AccessToken, user.ID)
+	if err != nil {
+		api.ErrorInternalServerError(w, err)
+		return
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id": fmt.Sprint(id),
+		"discord_uid": user.ID,
+	})
+	strToken, err := token.SignedString([]byte(*mod.jwtSecret))
+	if err != nil {
+		api.ErrorInternalServerError(w, err)
+		return
+	}
+	api.Forward(w, fmt.Sprintf("/#!?jwt=%s", strToken))
 }
 
 func handleGetUserProfile(w http.ResponseWriter, r *http.Request) {
@@ -63,6 +83,5 @@ func handleGetUserProfile(w http.ResponseWriter, r *http.Request) {
 			},
 		}
 	}
-
 	api.SendResponse(w, &res)
 }

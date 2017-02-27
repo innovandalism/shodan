@@ -6,6 +6,7 @@ import (
 	"github.com/innovandalism/shodan/util"
 	"net/http"
 	"github.com/innovandalism/shodan/services/redis"
+	"github.com/innovandalism/shodan/services/database"
 )
 
 type Shodan struct {
@@ -14,10 +15,15 @@ type Shodan struct {
 	mux          *http.ServeMux
 	cmdStack     *CommandStack
 	redis	     *redis.ShodanRedis
+	postgres     *database.ShodanPostgres
 }
 
 func (session *Shodan) GetDiscord() *Discord.Session {
 	return session.discord
+}
+
+func (session *Shodan) GetPostgres() *database.ShodanPostgres {
+	return session.postgres
 }
 
 func (session *Shodan) GetMux() *http.ServeMux {

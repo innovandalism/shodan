@@ -10,9 +10,11 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"errors"
 )
 
 func main() {
+	riot()
 	bindata()
 	writeGithash()
 }
@@ -37,8 +39,25 @@ func bindata() {
 	cmd.Wait()
 }
 
+func riot() {
+	path, err := exec.LookPath("riot")
+	if err != nil {
+		panic(errors.New("riot-cli needs to be installed in path: npm i -g riot"))
+	}
+	cmd := exec.Command(path, "tags/", "public/res/riot")
+	cmd.Dir, _ = filepath.Abs("./assets/webui")
+	err = cmd.Run()
+	if err != nil {
+		panic(err)
+	}
+	cmd.Wait()
+}
+
 func writeGithash() {
 	hash := getGithash()
+	if getGitIsDirty() {
+		hash = "HEAD"
+	}
 	gitConfigFile := `package config
 
 const VersionGitHash string = "%s"`
@@ -76,7 +95,7 @@ func getGitIsDirty() bool {
 	if err != nil {
 		panic(err)
 	}
-	cmd := exec.Command(gitpath, "status", "-s")
+	cmd := exec.Command(gitpath, "rev-parse", "--abbrev-ref", "HEAD")
 	cmd.Dir, _ = filepath.Abs(".")
 	r, w, err := os.Pipe()
 	cmd.Stdout = w
@@ -92,5 +111,6 @@ func getGitIsDirty() bool {
 		panic(err)
 	}
 	haystack := fmt.Sprintf("%s", x)
-	return len(haystack) > 0
+	haystack = strings.Trim(haystack, "\t\n ")
+	return haystack == "master"
 }

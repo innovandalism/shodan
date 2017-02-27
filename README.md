@@ -7,6 +7,8 @@ A modular bot for Discord.
 ### Requirements
 
 * Go 1.7, tested with 1.7.4 specifically
+* [Riot CLI](http://riotjs.com/guide/compiler/#pre-compilation) in PATH (for development)
+* [go-bindata](https://github.com/jteeuwen/go-bindata) in GOPATH (for development)
 
 ### Forking the buildfile
 
@@ -26,6 +28,8 @@ These are the command line switches currently available in core builds.
 
 ### Core
 
+* `-redis=<redis uri>` - Redis URI - required.
+* `-postgres=<postgres uri>` - Postgres URI - required.
 * `-token=<token>` - Provide a Discord token. Userbots are not officially supported and will only receive gateway events.
 * `-web_disable` - Boolean flag to prevent SHODAN from listening on an HTTP socket. Modules using HTTP may not work, but should not crash either.
 * `-web_addr=<addr>` - Provide an IP address and port to listen on. For instance, `127.0.0.1:9090` will make SHODAN listen on the loopback device at port 9090.

@@ -3,3 +3,4 @@ modules/serenity/
 !modules/serenity/hint.go
 bindata/
 config/githash.go
+assets/webui/public/res/riot

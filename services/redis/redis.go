@@ -2,7 +2,6 @@ package redis
 
 import (
 	"gopkg.in/redis.v5"
-	"github.com/innovandalism/shodan/util"
 	"time"
 	"fmt"
 )
@@ -14,11 +13,10 @@ type ShodanRedis struct{
 }
 
 // Initialize the redis client for use, call this from the main goroutine only
-func (r *ShodanRedis) Init(options *redis.Options) {
+func (r *ShodanRedis) Init(options *redis.Options) (error) {
 	r.client = redis.NewClient(options)
 	r.prefix = "SHODAN"
-	err := r.client.Ping().Err()
-	util.PanicOnError(err)
+	return r.client.Ping().Err()
 }
 
 func (r *ShodanRedis) formatPrefix(key string) string {

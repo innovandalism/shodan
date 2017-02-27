@@ -14,6 +14,7 @@ import (
 	"os"
 	"time"
 	"gopkg.in/redis.v5"
+	"github.com/innovandalism/shodan/services/database"
 )
 
 // Invokes the main loop, starting HTTP listeners and Discordgo.
@@ -34,6 +35,7 @@ func Run() {
 		noweb     = flag.Bool("web_disable", false, "Disable WebUI")
 		dsn       = flag.String("dsn", "", "Sentry DSN")
 		redis_uri = flag.String("redis", "redis://127.0.0.1/", "Redis URI")
+		pg_uri    = flag.String("postgres", "postgres://127.0.0.1/shodan", "Postgres URI")
 	)
 
 	// notify all modules that this is the last chance to ask for flags
@@ -59,7 +61,12 @@ func Run() {
 	session.redis = &shodanRedis.ShodanRedis{}
 	options, err := redis.ParseURL(*redis_uri)
 	util.PanicOnError(err)
-	session.redis.Init(options)
+	err = session.redis.Init(options)
+	util.PanicOnError(err)
+
+	session.postgres = &database.ShodanPostgres{}
+	err = session.postgres.Connect(*pg_uri)
+	util.PanicOnError(err)
 
 	// raven should receive the git hash when crashing
 	raven.SetRelease(config.VersionGitHash)
