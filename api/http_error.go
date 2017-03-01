@@ -13,23 +13,17 @@ func Error(w http.ResponseWriter, code int, err error) error {
 	}
 	err = SendResponse(w, &res)
 	if err != nil {
-		err = util.WrapError(err)
+		err = err
 		return err
 	}
 	return nil
 }
 
-// 400
-func ErrorBadRequest(w http.ResponseWriter, err error) error {
-	return Error(w, 400, err)
-}
-
-// 403
-func ErrorUnauthorized(w http.ResponseWriter, err error) error {
-	return Error(w, 403, err)
-}
-
-// 500
-func ErrorInternalServerError(w http.ResponseWriter, err error) error {
-	return Error(w, 500, err)
+func ErrorInfer(w http.ResponseWriter, err error) error {
+	code := 500
+	de, isDebuggable := err.(*util.DebuggableError)
+	if isDebuggable {
+		code = de.Status
+	}
+	return Error(w, code, err)
 }

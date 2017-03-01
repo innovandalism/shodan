@@ -7,6 +7,7 @@ import (
 	"github.com/innovandalism/shodan/api"
 	"github.com/dgrijalva/jwt-go"
 	"strconv"
+	"github.com/innovandalism/shodan/util"
 )
 
 type Module struct {
@@ -58,22 +59,24 @@ func (m *Module) Attach(session *shodan.Shodan) {
 	session.GetMux().HandleFunc("/oauth/exchange/", handleGetUserProfile)
 	session.GetMux().HandleFunc("/user/profile/", handleGetUserProfile)
 
-	api.VerifyJWTFunc = func(t string) (string, error) {
-		var sc ShodanClaims
-		jwt, err := jwt.ParseWithClaims(t, &sc, func(t *jwt.Token) (interface{}, error) {
-			return []byte(*mod.jwtSecret), nil
-		})
-		if err != nil {
-			return "", err
-		}
-		if !jwt.Valid {
-			return "", errors.New("JWT not valid.")
-		}
-		id, _ := sc.GetID()
-		token, err := session.GetPostgres().GetToken(int(id))
-		if err != nil {
-			return "", err
-		}
-		return token, nil
+	api.VerifyJWTFunc = verifyJwt
+}
+
+func verifyJwt(t string) (string, error) {
+	var sc ShodanClaims
+	jwt, err := jwt.ParseWithClaims(t, &sc, func(t *jwt.Token) (interface{}, error) {
+		return []byte(*mod.jwtSecret), nil
+	})
+	if err != nil {
+		return "", util.WrapErrorHttp(err, 400)
 	}
+	if !jwt.Valid {
+		return "", util.WrapErrorHttp(err, 403)
+	}
+	id, _ := sc.GetID()
+	token, err := mod.shodan.GetPostgres().GetToken(int(id))
+	if err != nil {
+		return "", err
+	}
+	return token, nil
 }

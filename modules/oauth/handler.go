@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/innovandalism/shodan/util"
 )
 
 type ExchangeTokenRequest struct {
@@ -20,22 +21,22 @@ func handleAuthenticate(w http.ResponseWriter, _ *http.Request) {
 func handleExchangeToken(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	if code == "" {
-		api.ErrorBadRequest(w, errors.New("Code not found"))
+		api.Error(w, 400, util.WrapError(errors.New("code parameter missing")))
 		return
 	}
 	err, tokenInfo := exchangeDiscordToken(code)
 	if err != nil {
-		api.ErrorInternalServerError(w, err)
+		api.Error(w, 500, err)
 		return
 	}
 	user, err := api.FetchProfile(tokenInfo.AccessToken)
 	if err != nil {
-		api.ErrorInternalServerError(w, err)
+		api.Error(w, 500, err)
 		return
 	}
 	id, err := mod.shodan.GetPostgres().AddToken(tokenInfo.AccessToken, user.ID)
 	if err != nil {
-		api.ErrorInternalServerError(w, err)
+		api.Error(w, 500, err)
 		return
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -44,7 +45,7 @@ func handleExchangeToken(w http.ResponseWriter, r *http.Request) {
 	})
 	strToken, err := token.SignedString([]byte(*mod.jwtSecret))
 	if err != nil {
-		api.ErrorInternalServerError(w, err)
+		api.Error(w, 500, err)
 		return
 	}
 	api.Forward(w, fmt.Sprintf("/#!?jwt=%s", strToken))
@@ -54,17 +55,18 @@ func handleGetUserProfile(w http.ResponseWriter, r *http.Request) {
 	var res api.ResponseEnvelope
 	req, err := api.ReadRequest(r)
 	if err != nil {
-		api.ErrorInternalServerError(w, err)
+		api.ErrorInfer(w, err)
 		return
 	}
 	if len(req.Token) < 1 {
-		api.ErrorBadRequest(w, errors.New("Token is missing"))
+		api.Error(w, 401, util.WrapError(errors.New("Authorization required")))
 		return
 	}
+
 	u, err := api.FetchProfile(req.Token)
 
 	if err != nil {
-		api.ErrorUnauthorized(w, err)
+		api.ErrorInfer(w, err)
 		return
 	} else {
 		res = api.ResponseEnvelope{

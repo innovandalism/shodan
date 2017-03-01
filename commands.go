@@ -63,12 +63,12 @@ func (commandStack *CommandStack) DispatchCommand(ci *CommandInvocation) error {
 			}
 			ok, err := checkDiscordPermissions(ci, c)
 			if err != nil {
-				return util.WrapError(err)
+				return err
 			}
 			if !ok {
 				err := ci.Helpers.Reply("Permission denied.")
 				if err != nil {
-					return util.WrapError(err)
+					return err
 				}
 				return nil
 			}
@@ -90,7 +90,7 @@ func checkDiscordPermissions(ci *CommandInvocation, c Command) (bool, error) {
 	if ok {
 		perms, err := ci.Shodan.GetDiscord().State.UserChannelPermissions(ci.Event.Author.ID, ci.Event.ChannelID)
 		if err != nil {
-			return false, err
+			return false, util.WrapError(err)
 		}
 		return perms&pec.GetRequiredPermission() > 0, nil
 	}
@@ -126,10 +126,16 @@ func attachHelpers(ci *CommandInvocation) {
 	ci.Helpers = &CommandInvocationHelpers{}
 	ci.Helpers.Reply = func(message string) error {
 		_, err := ci.Shodan.GetDiscord().ChannelMessageSend(ci.Event.ChannelID, message)
+		if err != nil {
+			err = util.WrapError(err)
+		}
 		return err
 	}
 	ci.Helpers.ReplyEmbed = func(embed *discordgo.MessageEmbed) error {
 		_, err := ci.Shodan.GetDiscord().ChannelMessageSendEmbed(ci.Event.ChannelID, embed)
+		if err != nil {
+			err = util.WrapError(err)
+		}
 		return err
 	}
 }

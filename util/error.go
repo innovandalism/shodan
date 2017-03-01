@@ -17,6 +17,7 @@ type ThreadError struct {
 
 type DebuggableError struct {
 	error  string
+	Status int
 	stack  *raven.Stacktrace
 	packet *raven.Packet
 }
@@ -97,6 +98,7 @@ func GetThreadErrorChannel() chan *ThreadError {
 }
 
 // Wraps any error into a DebuggableError. Never double-wraps.
+// This function should only be used at module boundaries for performance reasons.
 func WrapError(e error) error {
 	var de = &DebuggableError{}
 	if e == nil {
@@ -110,8 +112,16 @@ func WrapError(e error) error {
 	}
 
 	// attach the actual debug information
+	de.Status = 500
 	de.error = e.Error()
 	de.stack = raven.NewStacktrace(1, 2, nil)
 	de.packet = raven.NewPacket(e.Error(), raven.NewException(e, de.stack))
+	return de
+}
+
+func WrapErrorHttp(e error, code int) error {
+	e = WrapError(e)
+	de, _ := e.(*DebuggableError)
+	de.Status = code
 	return de
 }
