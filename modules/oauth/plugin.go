@@ -4,6 +4,9 @@ import (
 	"flag"
 	"github.com/innovandalism/shodan"
 	"errors"
+	"github.com/innovandalism/shodan/api"
+	"github.com/dgrijalva/jwt-go"
+	"strconv"
 )
 
 type Module struct {
@@ -31,6 +34,20 @@ func (m *Module) FlagHook() {
 	m.jwtSecret = flag.String("oauth_jwt_secret", "", "JWT Secret")
 }
 
+type ShodanClaims struct{
+	Id string
+	Discord_uid string
+}
+
+func (sc *ShodanClaims) Valid() error {
+	_, err := sc.GetID()
+	return err
+}
+
+func (sc *ShodanClaims) GetID() (int64, error) {
+	return strconv.ParseInt(sc.Id, 10, 32)
+}
+
 func (m *Module) Attach(session *shodan.Shodan) {
 	if *m.jwtSecret == "" {
 		panic(errors.New("JWT secret not set. Refusing operation."))
@@ -40,4 +57,23 @@ func (m *Module) Attach(session *shodan.Shodan) {
 	session.GetMux().HandleFunc("/oauth/callback/", handleExchangeToken)
 	session.GetMux().HandleFunc("/oauth/exchange/", handleGetUserProfile)
 	session.GetMux().HandleFunc("/user/profile/", handleGetUserProfile)
+
+	api.VerifyJWTFunc = func(t string) (string, error) {
+		var sc ShodanClaims
+		jwt, err := jwt.ParseWithClaims(t, &sc, func(t *jwt.Token) (interface{}, error) {
+			return []byte(*mod.jwtSecret), nil
+		})
+		if err != nil {
+			return "", err
+		}
+		if !jwt.Valid {
+			return "", errors.New("JWT not valid.")
+		}
+		id, _ := sc.GetID()
+		token, err := session.GetPostgres().GetToken(int(id))
+		if err != nil {
+			return "", err
+		}
+		return token, nil
+	}
 }
