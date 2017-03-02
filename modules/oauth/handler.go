@@ -7,6 +7,7 @@ import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/innovandalism/shodan/util"
+	"github.com/bwmarrin/discordgo"
 )
 
 type ExchangeTokenRequest struct {
@@ -14,7 +15,7 @@ type ExchangeTokenRequest struct {
 }
 
 func handleAuthenticate(w http.ResponseWriter, _ *http.Request) {
-	uri := fmt.Sprintf("https://discordapp.com/oauth2/authorize?client_id=%s&scope=identify&response_type=code&redirect_uri=%s", *mod.clientid, *mod.returnuri)
+	uri := fmt.Sprintf("https://discordapp.com/oauth2/authorize?client_id=%s&scope=identify guilds&response_type=code&redirect_uri=%s", *mod.clientid, *mod.returnuri)
 	api.Forward(w, uri)
 }
 
@@ -68,11 +69,22 @@ func handleGetUserProfile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		api.ErrorInfer(w, err)
 		return
-	} else {
-		res = api.ResponseEnvelope{
-			Status: 200,
-			Data: u,
-		}
 	}
+
+	g, err := api.GetUserGuilds(req.Token)
+
+	if err != nil {
+		api.ErrorInfer(w, err)
+		return
+	}
+
+	res = api.ResponseEnvelope{
+		Status: 200,
+		Data: struct{
+			User *discordgo.User `json:"user"`
+			Guilds []*discordgo.UserGuild `json:"guilds"`
+		}{u, g},
+	}
+
 	api.SendResponse(w, &res)
 }

@@ -1,24 +1,21 @@
-<webui>
-    <navbar app="{app}" user={user} guild={guild} logged-in={loggedIn}></navbar>
-    <welcome app="{app}" if={route=="start"}></welcome>
-    <guildselect guilds={guilds} if={loggedIn}></guildselect>
-
-    <script>
+riot.tag2('webui', '<navbar app="{app}" items="{menu}" user="{user}" logged-in="{loggedIn}"></navbar> <welcome app="{app}" if="{route==⁗start⁗}"></welcome>', '', '', function(opts) {
         var that = this;
 
         this.app = {
             name: "Loading..."
         };
 
-        this.alerts = [];
+        this.user = {
 
-        this.user = null;
-        this.guilds = []
-        this.guild = null;
+        }
 
         this.route = "";
 
         this.loggedIn = false;
+
+        this.menu = [
+            {title: "Sign Out", target: "logout"}
+        ];
 
         route("start", function() {
             that.route = "start"
@@ -27,7 +24,6 @@
         route("logout", function() {
             localStorage.clear();
             updateLoginStatus()
-            updateProfile()
             route("start")
         });
 
@@ -41,10 +37,6 @@
 
         if (this.route == "") {
             route("start")
-        }
-
-        function setGuildContext() {
-
         }
 
         function updateLoginStatus() {
@@ -69,29 +61,19 @@
         }
 
         function updateProfile() {
-            if (!localStorage.jwt) {
-                that.user = null;
-                return
-            }
             var headers = new Headers({
                 "Authorization": "Bearer " + localStorage.jwt
-            });
-
+            })
             fetch("/user/profile/", {
                 headers: headers,
                 method: "GET"
             }).then(function(res) {
                 return res.json()
-            }).then(function(res) {
-                if (res.err != "" || res.status != 200) {
-                    throw res.err;
+            }).then(function(user) {
+                if (user.err != "" || user.status != 200) {
+                    throw user.err
                 }
-                that.user = res.data.user
-                that.guilds = res.data.guilds
-                that.update()
-            }).catch(function() {
-                route("logout")
+                that.user = user.user
             })
         }
-    </script>
-</webui>
+});
