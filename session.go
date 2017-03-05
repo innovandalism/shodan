@@ -6,7 +6,7 @@ import (
 	"github.com/innovandalism/shodan/util"
 	"net/http"
 	"github.com/innovandalism/shodan/services/redis"
-	"github.com/innovandalism/shodan/services/database"
+	"github.com/innovandalism/shodan/services/dal"
 )
 
 type Shodan struct {
@@ -14,16 +14,16 @@ type Shodan struct {
 	moduleLoader *ModuleLoader
 	mux          *http.ServeMux
 	cmdStack     *CommandStack
-	redis	     *redis.ShodanRedis
-	postgres     *database.ShodanPostgres
+	kvs          *redis.KVS
+	database     *dal.Database
 }
 
 func (session *Shodan) GetDiscord() *Discord.Session {
 	return session.discord
 }
 
-func (session *Shodan) GetPostgres() *database.ShodanPostgres {
-	return session.postgres
+func (session *Shodan) GetDatabase() *dal.Database {
+	return session.database
 }
 
 func (session *Shodan) GetMux() *http.ServeMux {
@@ -34,8 +34,8 @@ func (session *Shodan) GetCommandStack() *CommandStack {
 	return session.cmdStack
 }
 
-func (session *Shodan) GetRedis() *redis.ShodanRedis {
-	return session.redis
+func (session *Shodan) GetRedis() *redis.KVS {
+	return session.kvs
 }
 
 func Init() *Shodan {
@@ -72,7 +72,7 @@ func (session *Shodan) InitDiscord(token *string) error {
 	return nil
 }
 
-func (session *Shodan) InitHttp(addr string) {
+func (session *Shodan) InitHTTP(addr string) {
 	err := http.ListenAndServe(addr, session.mux)
 	if err != nil {
 		util.ReportThreadError(true, err)

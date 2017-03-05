@@ -74,7 +74,7 @@ func verifyJwt(t string) (string, error) {
 		return "", util.WrapErrorHttp(err, 403)
 	}
 	id, _ := sc.GetID()
-	token, err := mod.shodan.GetPostgres().GetToken(int(id))
+	token, err := mod.shodan.GetDatabase().GetToken(int(id))
 	if err != nil {
 		return "", err
 	}

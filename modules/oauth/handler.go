@@ -35,7 +35,7 @@ func handleExchangeToken(w http.ResponseWriter, r *http.Request) {
 		api.Error(w, 500, err)
 		return
 	}
-	id, err := mod.shodan.GetPostgres().AddToken(tokenInfo.AccessToken, user.ID)
+	id, err := mod.shodan.GetDatabase().AddToken(tokenInfo.AccessToken, user.ID)
 	if err != nil {
 		api.Error(w, 500, err)
 		return

@@ -29,27 +29,17 @@ func (vc *VersionCommand) Invoke(ci *shodan.CommandInvocation) error {
 			{"Version", v, true},
 			{"Uptime", time.Now().Sub(vc.startupTime).String(), true},
 			{"Git Hash", config.VersionGitHash, false},
-			{"Modules", getPluginList(), false},
 			{"Code", "https://github.com/innovandalism/shodan", false},
 		},
 		URL:    "https://github.com/innovandalism/shodan",
 		Author: &discordgo.MessageEmbedAuthor{URL: "https://innovandalism.eu", Name: "Innovandalism"},
+		Footer: &discordgo.MessageEmbedFooter{
+			Text: "This build of Shodan has super-kapow-powers.",
+		},
 	}
 	err := ci.Helpers.ReplyEmbed(me)
 	if err != nil {
 		return util.WrapError(err)
 	}
 	return nil
-}
-
-func getPluginList() string {
-	plugins := ""
-	for _, moduleInstance := range shodan.Loader.Modules {
-		if !*moduleInstance.Enabled {
-			continue
-		}
-		module := *moduleInstance.Module
-		plugins = plugins + fmt.Sprintf("\nm_"+module.GetIdentifier())
-	}
-	return plugins
 }

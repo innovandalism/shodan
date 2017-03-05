@@ -14,7 +14,7 @@ import (
 	"os"
 	"time"
 	"gopkg.in/redis.v5"
-	"github.com/innovandalism/shodan/services/database"
+	"github.com/innovandalism/shodan/services/dal"
 )
 
 // Invokes the main loop, starting HTTP listeners and Discordgo.
@@ -30,12 +30,12 @@ func Run() {
 
 	// essential flags
 	var (
-		token     = flag.String("token", config.DefaultToken, "Discord Bot Authentication Token")
-		addr      = flag.String("web_addr", "", "Address to bind HTTP listener to")
-		noweb     = flag.Bool("web_disable", false, "Disable WebUI")
-		dsn       = flag.String("dsn", "", "Sentry DSN")
-		redis_uri = flag.String("redis", "redis://127.0.0.1/", "Redis URI")
-		pg_uri    = flag.String("postgres", "postgres://127.0.0.1/shodan", "Postgres URI")
+		token = flag.String("token", config.DefaultToken, "Discord Bot Authentication Token")
+		addr  = flag.String("web_addr", "", "Address to bind HTTP listener to")
+		noweb = flag.Bool("web_disable", false, "Disable WebUI")
+		dsn   = flag.String("dsn", "", "Sentry DSN")
+		redisUrl = flag.String("redis", "redis://127.0.0.1/", "Redis URI")
+		pgUrl    = flag.String("postgres", "postgres://127.0.0.1/shodan", "Postgres URI")
 	)
 
 	// notify all modules that this is the last chance to ask for flags
@@ -57,15 +57,15 @@ func Run() {
 		raven.SetDSN(*dsn)
 	}
 
-	// set up redis
-	session.redis = &shodanRedis.ShodanRedis{}
-	options, err := redis.ParseURL(*redis_uri)
+	// set up kvs
+	session.kvs = &shodanRedis.KVS{}
+	options, err := redis.ParseURL(*redisUrl)
 	util.PanicOnError(err)
-	err = session.redis.Init(options)
+	err = session.kvs.Init(options)
 	util.PanicOnError(err)
 
-	session.postgres = &database.ShodanPostgres{}
-	err = session.postgres.Connect(*pg_uri)
+	session.database = &dal.Database{}
+	err = session.database.Connect(*pgUrl)
 	util.PanicOnError(err)
 
 	// raven should receive the git hash when crashing
@@ -75,7 +75,7 @@ func Run() {
 	util.PanicOnError(err)
 
 	if !*noweb {
-		go session.InitHttp(*addr)
+		go session.InitHTTP(*addr)
 	}
 
 	session.Connect()

@@ -4,8 +4,7 @@ import (
 	"github.com/innovandalism/shodan"
 )
 
-type Module struct {
-}
+type Module struct {}
 
 var mod = Module{}
 
