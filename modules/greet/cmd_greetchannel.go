@@ -8,13 +8,16 @@ import (
 	"strings"
 )
 
-type GreetChannelCmd struct{}
+// A ChannelCmd holds methods for this command
+type ChannelCmd struct{}
 
-func (_ *GreetChannelCmd) GetNames() []string {
+// GetNames returns the command aliases for this command
+func (c *ChannelCmd) GetNames() []string {
 	return []string{"greet"}
 }
 
-func (_ *GreetChannelCmd) Invoke(ci *shodan.CommandInvocation) error {
+// Invoke runs the command
+func (c *ChannelCmd) Invoke(ci *shodan.CommandInvocation) error {
 	if len(ci.Arguments) < 1 {
 		err := ci.Helpers.Reply("greet [status|set|clear|msg]")
 		if err != nil {
@@ -26,11 +29,11 @@ func (_ *GreetChannelCmd) Invoke(ci *shodan.CommandInvocation) error {
 	if err != nil {
 		return util.WrapError(err)
 	}
-	guildKeyChannelId := fmt.Sprintf(greetChannelIdKeyFormat, channel.GuildID)
-	guildKeyGreetMessage := fmt.Sprintf(greetMessageFormat, channel.GuildID)
+	guildKeyChannelID := fmt.Sprintf(channelIDKeyFormat, channel.GuildID)
+	guildKeyGreetMessage := fmt.Sprintf(messageKeyFormat, channel.GuildID)
 	switch ci.Arguments[0] {
 	case "status":
-		hasKey, err := ci.Shodan.GetRedis().HasKey(guildKeyChannelId)
+		hasKey, err := ci.Shodan.GetRedis().HasKey(guildKeyChannelID)
 		if err != nil {
 			return util.WrapError(err)
 		}
@@ -46,7 +49,7 @@ func (_ *GreetChannelCmd) Invoke(ci *shodan.CommandInvocation) error {
 			util.ReportThreadError(false, err)
 		}
 	case "set":
-		err := ci.Shodan.GetRedis().SetPerm(guildKeyChannelId, ci.Event.ChannelID)
+		err := ci.Shodan.GetRedis().Set(guildKeyChannelID, ci.Event.ChannelID)
 		if err != nil {
 			return util.WrapError(err)
 		}
@@ -55,7 +58,7 @@ func (_ *GreetChannelCmd) Invoke(ci *shodan.CommandInvocation) error {
 			return util.WrapError(err)
 		}
 	case "clear":
-		_, err := ci.Shodan.GetRedis().Clear(guildKeyChannelId)
+		err := ci.Shodan.GetRedis().Clear(guildKeyChannelID)
 		if err != nil {
 			return util.WrapError(err)
 		}
@@ -72,7 +75,7 @@ func (_ *GreetChannelCmd) Invoke(ci *shodan.CommandInvocation) error {
 			return nil
 		}
 		msg := strings.Join(ci.Arguments[1:], " ")
-		err := ci.Shodan.GetRedis().SetPerm(guildKeyGreetMessage, msg)
+		err := ci.Shodan.GetRedis().Set(guildKeyGreetMessage, msg)
 		if err != nil {
 			return util.WrapError(err)
 		}
@@ -84,6 +87,7 @@ func (_ *GreetChannelCmd) Invoke(ci *shodan.CommandInvocation) error {
 	return nil
 }
 
-func (_ *GreetChannelCmd) GetRequiredPermission() int {
+// GetRequiredPermission returns permission bits for discord ACL permission system
+func (c *ChannelCmd) GetRequiredPermission() int {
 	return discordgo.PermissionManageServer
 }

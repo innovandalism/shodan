@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	riot()
+	//riot()
 	bindata()
 	writeGithash()
 }

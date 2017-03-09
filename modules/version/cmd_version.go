@@ -24,7 +24,7 @@ func (vc *VersionCommand) Invoke(ci *shodan.CommandInvocation) error {
 	me := &discordgo.MessageEmbed{
 		Type:        "rich",
 		Title:       "SHODAN",
-		Description: "A platform for building Discord Bots in Go",
+		Description: "A platform for building discordgo Bots in Go",
 		Fields: []*discordgo.MessageEmbedField{
 			{"Version", v, true},
 			{"Uptime", time.Now().Sub(vc.startupTime).String(), true},

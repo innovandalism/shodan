@@ -6,11 +6,13 @@ import (
 	"strings"
 )
 
+// The Command interface enables the implementer to be loaded as a command
 type Command interface {
 	GetNames() []string
 	Invoke(invocation *CommandInvocation) error
 }
 
+// A CommandInvocation contains all data (and references) the command stack parses from an incoming command
 type CommandInvocation struct {
 	Name      string
 	Arguments []string
@@ -20,20 +22,25 @@ type CommandInvocation struct {
 	Helpers   *CommandInvocationHelpers
 }
 
+// CommandInvocationHelpers are attached to the CommandInvocation and provide easy access to frequently used functionality
 type CommandInvocationHelpers struct {
 	Reply      func(string) error
 	ReplyEmbed func(*discordgo.MessageEmbed) error
 }
 
+// The CommandStack holds an array of commands and an optional fallback command
 type CommandStack struct {
 	commands        []Command
 	FallbackCommand Command
 }
 
+// PermissionEnabledCommand defines an interface Commands can implement to indicate the
+// permission bits corresponding to discordgo ACLs required to run this command
 type PermissionEnabledCommand interface {
 	GetRequiredPermission() int
 }
 
+// Attach the command stack to a shodan instance
 func (commandStack *CommandStack) Attach(shodan *Shodan) {
 	callback := func(session *discordgo.Session, event *discordgo.MessageCreate) {
 		if !util.MentionsMe(session.State.User.ID, event.Content) {
@@ -42,7 +49,7 @@ func (commandStack *CommandStack) Attach(shodan *Shodan) {
 
 		commandInvocation := prepareCommand(event.Content, event)
 		commandInvocation.Shodan = shodan
-		err := commandStack.DispatchCommand(commandInvocation)
+		err := commandStack.dispatchCommand(commandInvocation)
 		if err != nil {
 			util.ReportThreadError(false, err)
 		}
@@ -50,11 +57,13 @@ func (commandStack *CommandStack) Attach(shodan *Shodan) {
 	shodan.GetDiscord().AddHandler(callback)
 }
 
+// RegisterCommand adds a command to the stack
 func (commandStack *CommandStack) RegisterCommand(c Command) {
 	commandStack.commands = append(commandStack.commands, c)
 }
 
-func (commandStack *CommandStack) DispatchCommand(ci *CommandInvocation) error {
+// Checks for permissions, matches the invocation to a command and invokes the command handler
+func (commandStack *CommandStack) dispatchCommand(ci *CommandInvocation) error {
 	var command Command
 	for _, c := range commandStack.commands {
 		for _, name := range c.GetNames() {
@@ -85,6 +94,7 @@ func (commandStack *CommandStack) DispatchCommand(ci *CommandInvocation) error {
 	return nil
 }
 
+// shorthand for checking if a CommandInvocation can invoke a command
 func checkDiscordPermissions(ci *CommandInvocation, c Command) (bool, error) {
 	pec, ok := c.(PermissionEnabledCommand)
 	if ok {
@@ -97,6 +107,7 @@ func checkDiscordPermissions(ci *CommandInvocation, c Command) (bool, error) {
 	return true, nil
 }
 
+// parser logic
 func prepareCommand(message string, event *discordgo.MessageCreate) *CommandInvocation {
 	parts := strings.Split(message, " ")
 	// discard the mention
@@ -122,6 +133,7 @@ func prepareCommand(message string, event *discordgo.MessageCreate) *CommandInvo
 	return commandInvocation
 }
 
+// attach various helpers
 func attachHelpers(ci *CommandInvocation) {
 	ci.Helpers = &CommandInvocationHelpers{}
 	ci.Helpers.Reply = func(message string) error {
