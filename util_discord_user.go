@@ -1,31 +1,30 @@
-package api
+package shodan
 
 import (
-	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/innovandalism/shodan/util"
+	"fmt"
 )
 
-func DoAsUser(token string, cb func(session *discordgo.Session) error) error {
+func dUDo(token string, cb func(session *discordgo.Session) error) error {
 	t := fmt.Sprintf("Bearer %s", token)
 	s, err := discordgo.New(t)
 	defer s.Close()
 	if err != nil {
-		err = util.WrapError(err)
+		err = WrapError(err)
 		return err
 	}
 	err = cb(s)
 	return err
 }
 
-func FetchProfile(token string) (*discordgo.User, error) {
+func DUFetchProfile(token string) (*discordgo.User, error) {
 	var u *discordgo.User
 	var err error
-	err = DoAsUser(token, func(s *discordgo.Session) error {
+	err = dUDo(token, func(s *discordgo.Session) error {
 
 		u, err = s.User("@me")
 		if err != nil {
-			err = util.WrapError(err)
+			err = WrapError(err)
 			return err
 		}
 		return nil
@@ -34,14 +33,14 @@ func FetchProfile(token string) (*discordgo.User, error) {
 }
 
 
-func GetUserGuilds(token string) ([]*discordgo.UserGuild, error) {
+func DUGetUserGuilds(token string) ([]*discordgo.UserGuild, error) {
 	var u []*discordgo.UserGuild
 	var err error
-	err = DoAsUser(token, func(s *discordgo.Session) error {
+	err = dUDo(token, func(s *discordgo.Session) error {
 
 		u, err = s.UserGuilds()
 		if err != nil {
-			err = util.WrapError(err)
+			err = WrapError(err)
 			return err
 		}
 		return nil

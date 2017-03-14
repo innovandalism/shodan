@@ -1,11 +1,13 @@
-package util
+package shodan
 
 import (
-	"fmt"
 	"github.com/getsentry/raven-go"
-	"github.com/innovandalism/shodan/config"
 	"os"
+	"fmt"
 	"runtime"
+	"github.com/innovandalism/shodan/config"
+	"net/http"
+	"errors"
 )
 
 var errorChannel chan *ThreadError
@@ -20,6 +22,12 @@ type DebuggableError struct {
 	Status int
 	stack  *raven.Stacktrace
 	packet *raven.Packet
+}
+
+func panicOnError(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (e *DebuggableError) Error() string {
@@ -54,7 +62,7 @@ func errorMessage(err error) {
 }
 
 // Error handler. Only call from main thread.
-func ErrorHandler() {
+func errorHandler() {
 	if r := recover(); r != nil {
 		err, ok := r.(error)
 		if ok {
@@ -66,7 +74,7 @@ func ErrorHandler() {
 	}
 }
 
-// Reports the current thread as failed, captures the error if it is debuggable and kills the goroutine
+// ReportThreadError reports the current thread as failed, captures the error if it is debuggable and kills the goroutine
 func ReportThreadError(isFatal bool, error error) {
 	if error == nil {
 		return
@@ -81,7 +89,7 @@ func ReportThreadError(isFatal bool, error error) {
 		errorMessage(error)
 	}
 
-	GetThreadErrorChannel() <- &ThreadError{
+	getThreadErrorChannel() <- &ThreadError{
 		IsFatal: isFatal,
 		Error:   error,
 	}
@@ -90,15 +98,27 @@ func ReportThreadError(isFatal bool, error error) {
 	runtime.Goexit()
 }
 
-func GetThreadErrorChannel() chan *ThreadError {
+// GetThreadErrorChannel returns the channel errors should be sent to
+func getThreadErrorChannel() chan *ThreadError {
 	if errorChannel == nil {
 		errorChannel = make(chan *ThreadError, 10)
 	}
 	return errorChannel
 }
 
-// Wraps any error into a DebuggableError. Never double-wraps.
+// Error is a shorthand function to create a DebuggableError from a string
+func Error(msg string) error {
+	return WrapError(errors.New(msg))
+}
+
+// ErrorHttp is a shorthand function to create a DebuggableError from a string and HTTP status code
+func ErrorHttp(msg string, code int) error {
+	return WrapErrorHttp(Error(msg), code)
+}
+
+// WrapError wraps any error into a DebuggableError. Never double-wraps.
 // This function should only be used at module boundaries for performance reasons.
+// Sets the HTTP status to 500 by default.
 func WrapError(e error) error {
 	var de = &DebuggableError{}
 	if e == nil {
@@ -119,9 +139,32 @@ func WrapError(e error) error {
 	return de
 }
 
+// WrapErrorHttp wraps an existing error into a DebuggableError and attaches a status code to it
 func WrapErrorHttp(e error, code int) error {
 	e = WrapError(e)
 	de, _ := e.(*DebuggableError)
 	de.Status = code
 	return de
+}
+
+// HttpSendError sends a response to the given ResponseWriter and captures the error if given a DebuggableError
+//
+// This function sends 500 Internal Server Error by default
+func HttpSendError(w http.ResponseWriter, err error) error {
+	status := 500
+	de, isDe := err.(*DebuggableError)
+	if isDe	{
+		status = de.Status
+		de.Capture()
+	}
+	res := ResponseEnvelope{
+		Status: int32(status),
+		Error:  fmt.Sprintf("%s", err),
+	}
+	err = SendResponse(w, &res)
+	if err != nil {
+		err = err
+		return err
+	}
+	return nil
 }

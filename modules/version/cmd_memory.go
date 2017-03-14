@@ -3,7 +3,6 @@ package version
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/innovandalism/shodan"
-	"github.com/innovandalism/shodan/util"
 	"runtime"
 	"strconv"
 )
@@ -57,7 +56,7 @@ func (command *MemoryCommand) Invoke(ci *shodan.CommandInvocation) error {
 	}
 	err := ci.Helpers.ReplyEmbed(me)
 	if err != nil {
-		return util.WrapError(err)
+		return shodan.WrapError(err)
 	}
 	return nil
 }

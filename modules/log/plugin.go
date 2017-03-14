@@ -1,15 +1,15 @@
 package log
 
 import (
-	"github.com/innovandalism/shodan"
-	"github.com/innovandalism/shodan/util"
 	"github.com/bwmarrin/discordgo"
-	"time"
+	"github.com/innovandalism/shodan"
 	"log"
 )
 
 // Module holds this modules data and methods
-type Module struct {}
+type Module struct {
+	shodan shodan.Shodan
+}
 
 var mod = Module{}
 
@@ -28,54 +28,41 @@ func (m *Module) FlagHook() {
 }
 
 // Attach attaches functionality in this module to Shodan
-func (m *Module) Attach(session *shodan.Shodan) {
-	stmtInsertGuild, err := session.GetDatabase().Prepare("INSERT INTO discord_guild (id, name) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET name = $2")
+func (m *Module) Attach(session shodan.Shodan) {
+	m.shodan = session
+	session.GetDiscord().AddHandler(onMessageCreate)
+}
+
+func onMessageCreate(s *discordgo.Session, message *discordgo.MessageCreate) {
+	err := shodan.DBUpsertUser(mod.shodan.GetDatabase(), message.Author)
 	if err != nil {
-		util.ReportThreadError(true, util.WrapError(err))
+		log.Printf("logger: err user: %s\n", err.Error())
+		return
 	}
-	stmtInsertUser, err := session.GetDatabase().Prepare("INSERT INTO discord_user (id, name, discriminator) VALUES ($1, $2, $3) ON CONFLICT (id) DO UPDATE SET name = $2,discriminator = $3")
+	channel, err := s.State.Channel(message.ChannelID)
 	if err != nil {
-		util.ReportThreadError(true, util.WrapError(err))
+		log.Printf("logger: err channel: %s\n", err.Error())
+		return
 	}
-	stmtInsertChannel, err := session.GetDatabase().Prepare("INSERT INTO discord_channel (id, guild, name) VALUES ($1, $2, $3) ON CONFLICT (id) DO UPDATE SET guild = $2,name = $3")
+	guild, err := s.State.Guild(channel.GuildID)
 	if err != nil {
-		util.ReportThreadError(true, util.WrapError(err))
+		log.Printf("logger: err guild: %s\n", err.Error())
+		return
 	}
-	stmtInsertMessage, err := session.GetDatabase().Prepare("INSERT INTO discord_message (id, channel, userid, message, time) VALUES ($1, $2, $3, $4,$5)")
+	err = shodan.DBUpsertGuild(mod.shodan.GetDatabase(), guild)
 	if err != nil {
-		util.ReportThreadError(true, util.WrapError(err))
+		log.Printf("logger: err guild: %s\n", err.Error())
+		return
 	}
-	session.GetDiscord().AddHandler(func(s *discordgo.Session, message *discordgo.MessageCreate) {
-		_, err := stmtInsertUser.Exec(message.Author.ID, message.Author.Username, message.Author.Discriminator)
-		if err != nil {
-			log.Printf("logger: err: %s\n", err.Error())
-			return
-		}
-		channel, err := s.State.Channel(message.ChannelID)
-		if err != nil {
-			log.Printf("logger: err: %s\n", err.Error())
-			return
-		}
-		guild, err := s.State.Guild(channel.GuildID)
-		if err != nil {
-			log.Printf("logger: err: %s\n", err.Error())
-			return
-		}
-		_, err = stmtInsertGuild.Exec(guild.ID, guild.Name)
-		if err != nil {
-			log.Printf("logger: err: %s\n", err.Error())
-			return
-		}
-		_, err = stmtInsertChannel.Exec(channel.ID, channel.GuildID, channel.Name)
-		if err != nil {
-			log.Printf("logger: err: %s\n", err.Error())
-			return
-		}
-		_, err = stmtInsertMessage.Exec(message.ID, message.ChannelID, message.Author.ID, message.Message.Content, time.Now())
-		if err != nil {
-			log.Printf("logger: err: %s\n", err.Error())
-			return
-		}
-		log.Printf("logged: %s - %s - %s\n", message.ChannelID, message.Author.ID, message.Content)
-	})
+	err = shodan.DBUpsertChannel(mod.shodan.GetDatabase(), channel)
+	if err != nil {
+		log.Printf("logger: err channel: %s\n", err.Error())
+		return
+	}
+	err = shodan.DBUpsertMessage(mod.shodan.GetDatabase(), message.Message)
+	if err != nil {
+		log.Printf("logger: err message: %s\n", err.Error())
+		return
+	}
+	log.Printf("logged: %s - %s - %s\n", message.ChannelID, message.Author.ID, message.Content)
 }

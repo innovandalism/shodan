@@ -24,7 +24,7 @@ func (m *Module) FlagHook() {
 }
 
 // Attach attaches functionality in this module to Shodan
-func (m *Module) Attach(shodan *shodan.Shodan) {
+func (m *Module) Attach(shodan shodan.Shodan) {
 	shodan.GetCommandStack().RegisterCommand(&ChannelCmd{})
 	shodan.GetDiscord().AddHandler(getHandleGuildMemberAdd(shodan))
 }

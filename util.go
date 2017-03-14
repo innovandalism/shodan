@@ -1,15 +1,12 @@
-package util
+package shodan
 
 import (
 	"fmt"
+	"os"
 	"strings"
+	"os/signal"
 )
 
-func PanicOnError(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
 
 func MentionsMe(userID string, content string) bool {
 	mention := fmt.Sprintf("<@%s>", userID)
@@ -22,4 +19,10 @@ func MentionsMe(userID string, content string) bool {
 
 func IsMention(needle string) bool {
 	return strings.HasPrefix(needle, "<@") && strings.HasSuffix(needle, ">")
+}
+
+func makeSignalChannel() chan os.Signal {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, os.Kill)
+	return c
 }

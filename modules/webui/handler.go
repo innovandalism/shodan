@@ -1,0 +1,85 @@
+package webui
+
+import (
+	"github.com/bwmarrin/discordgo"
+	"net/http"
+	"github.com/gorilla/mux"
+	"github.com/innovandalism/shodan"
+)
+
+func handleGetUserProfile(w http.ResponseWriter, r *http.Request) {
+	var res shodan.ResponseEnvelope
+	req, err := shodan.ReadRequest(r)
+	if err != nil {
+		shodan.HttpSendError(w, err)
+		return
+	}
+	if req.Authenticated() {
+		shodan.HttpSendError(w, shodan.ErrorHttp("authorization required", 401))
+		return
+	}
+
+	u, err := shodan.DUFetchProfile(req.Token)
+
+	if err != nil {
+		shodan.HttpSendError(w, err)
+		return
+	}
+
+	g, err := shodan.DUGetUserGuilds(req.Token)
+
+	if err != nil {
+		shodan.HttpSendError(w, err)
+		return
+	}
+
+	res = shodan.ResponseEnvelope{
+		Status: 200,
+		Data: struct{
+			User *discordgo.User `json:"user"`
+			Guilds []*discordgo.UserGuild `json:"guilds"`
+		}{u, g},
+	}
+
+	shodan.SendResponse(w, &res)
+}
+
+func handleGetRolesForGuild(w http.ResponseWriter, r *http.Request) {
+	var res shodan.ResponseEnvelope
+	req, err := shodan.ReadRequest(r)
+	if err != nil {
+		shodan.HttpSendError(w, err)
+		return
+	}
+	if req.Authenticated() {
+		shodan.HttpSendError(w, shodan.ErrorHttp("Authorization required", 401))
+		return
+	}
+	// get the guild argument from the request
+	requestVars := mux.Vars(r)
+	guilds, err := shodan.DUGetUserGuilds(req.Token)
+	if err != nil {
+		shodan.HttpSendError(w, err)
+		return
+	}
+	isJoinedGuild := false
+	for _, guild := range guilds {
+		if guild.ID == requestVars["guild"] {
+			isJoinedGuild = true
+		}
+	}
+	if !isJoinedGuild {
+		shodan.HttpSendError(w, shodan.ErrorHttp("Guild access denied", 403))
+		return
+	}
+	data, err := DBGetAvailableRoles(mod.shodan.GetDatabase(), requestVars["guild"])
+	if err != nil {
+		shodan.HttpSendError(w, err)
+		return
+	}
+	res = shodan.ResponseEnvelope{
+		Status: 200,
+		Data: data,
+	}
+	shodan.SendResponse(w, &res)
+}

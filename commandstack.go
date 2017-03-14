@@ -2,7 +2,6 @@ package shodan
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/innovandalism/shodan/util"
 	"strings"
 )
 
@@ -18,7 +17,7 @@ type CommandInvocation struct {
 	Arguments []string
 	Empty     bool
 	Event     *discordgo.Message
-	Shodan    *Shodan
+	Shodan    Shodan
 	Helpers   *CommandInvocationHelpers
 }
 
@@ -41,9 +40,9 @@ type PermissionEnabledCommand interface {
 }
 
 // Attach the command stack to a shodan instance
-func (commandStack *CommandStack) Attach(shodan *Shodan) {
+func (commandStack *CommandStack) Attach(shodan Shodan) {
 	callback := func(session *discordgo.Session, event *discordgo.MessageCreate) {
-		if !util.MentionsMe(session.State.User.ID, event.Content) {
+		if !MentionsMe(session.State.User.ID, event.Content) {
 			return
 		}
 
@@ -51,7 +50,7 @@ func (commandStack *CommandStack) Attach(shodan *Shodan) {
 		commandInvocation.Shodan = shodan
 		err := commandStack.dispatchCommand(commandInvocation)
 		if err != nil {
-			util.ReportThreadError(false, err)
+			ReportThreadError(false, err)
 		}
 	}
 	shodan.GetDiscord().AddHandler(callback)
@@ -100,7 +99,7 @@ func checkDiscordPermissions(ci *CommandInvocation, c Command) (bool, error) {
 	if ok {
 		perms, err := ci.Shodan.GetDiscord().State.UserChannelPermissions(ci.Event.Author.ID, ci.Event.ChannelID)
 		if err != nil {
-			return false, util.WrapError(err)
+			return false, WrapError(err)
 		}
 		return perms&pec.GetRequiredPermission() > 0, nil
 	}
@@ -139,14 +138,14 @@ func attachHelpers(ci *CommandInvocation) {
 	ci.Helpers.Reply = func(message string) error {
 		_, err := ci.Shodan.GetDiscord().ChannelMessageSend(ci.Event.ChannelID, message)
 		if err != nil {
-			err = util.WrapError(err)
+			err = WrapError(err)
 		}
 		return err
 	}
 	ci.Helpers.ReplyEmbed = func(embed *discordgo.MessageEmbed) error {
 		_, err := ci.Shodan.GetDiscord().ChannelMessageSendEmbed(ci.Event.ChannelID, embed)
 		if err != nil {
-			err = util.WrapError(err)
+			err = WrapError(err)
 		}
 		return err
 	}

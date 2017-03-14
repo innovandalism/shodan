@@ -4,14 +4,12 @@ import (
 	"flag"
 	"github.com/innovandalism/shodan"
 	"errors"
-	"github.com/innovandalism/shodan/api"
 	"github.com/dgrijalva/jwt-go"
 	"strconv"
-	"github.com/innovandalism/shodan/util"
 )
 
 type Module struct {
-	shodan       *shodan.Shodan
+	shodan       shodan.Shodan
 	clientid     *string
 	clientsecret *string
 	returnuri    *string
@@ -35,45 +33,47 @@ func (m *Module) FlagHook() {
 	m.jwtSecret = flag.String("oauth_jwt_secret", "", "JWT Secret")
 }
 
-type ShodanClaims struct{
+type Claims struct{
 	Id string
-	Discord_uid string
 }
 
-func (sc *ShodanClaims) Valid() error {
+func (sc *Claims) Valid() error {
 	_, err := sc.GetID()
 	return err
 }
 
-func (sc *ShodanClaims) GetID() (int64, error) {
+func (sc *Claims) GetID() (int64, error) {
 	return strconv.ParseInt(sc.Id, 10, 32)
 }
 
-func (m *Module) Attach(session *shodan.Shodan) {
+func (m *Module) Attach(session shodan.Shodan) {
 	if *m.jwtSecret == "" {
 		panic(errors.New("JWT secret not set. Refusing operation."))
 	}
 	m.shodan = session
 	session.GetMux().HandleFunc("/oauth/authenticate/", handleAuthenticate)
 	session.GetMux().HandleFunc("/oauth/callback/", handleExchangeToken)
-	session.GetMux().HandleFunc("/oauth/exchange/", handleGetUserProfile)
-	session.GetMux().HandleFunc("/user/profile/", handleGetUserProfile)
 
-	api.VerifyJWTFunc = verifyJwt
+	shodan.VerifyJWTFunc = verifyJwt
+}
+
+func makeJwt(id int) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &Claims{strconv.FormatInt(int64(id), 10)})
+	return token.SignedString([]byte(*mod.jwtSecret))
 }
 
 func verifyJwt(t string) (string, error) {
-	var sc ShodanClaims
-	jwt, err := jwt.ParseWithClaims(t, &sc, func(t *jwt.Token) (interface{}, error) {
+	claims := Claims{}
+	jwt, err := jwt.ParseWithClaims(t, &claims, func(t *jwt.Token) (interface{}, error) {
 		return []byte(*mod.jwtSecret), nil
 	})
 	if err != nil {
-		return "", util.WrapErrorHttp(err, 400)
+		return "", shodan.WrapErrorHttp(err, 403)
 	}
-	if !jwt.Valid {
-		return "", util.WrapErrorHttp(err, 403)
+	if !jwt.Valid || jwt.Header["alg"] != "HS256" {
+		return "", shodan.WrapErrorHttp(err, 403)
 	}
-	id, _ := sc.GetID()
+	id, _ := claims.GetID()
 	token, err := DBGetToken(mod.shodan.GetDatabase(), int(id))
 	if err != nil {
 		return "", err

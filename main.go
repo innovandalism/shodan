@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/getsentry/raven-go"
 	"github.com/innovandalism/shodan/config"
-	"github.com/innovandalism/shodan/util"
 	"github.com/vharitonsky/iniflags"
 	"math/rand"
 	"os"
@@ -19,7 +18,7 @@ import (
 // Meant to be called from an external package after importing additional modules.
 func Run() {
 	// catch-all error handler
-	defer util.ErrorHandler()
+	defer errorHandler()
 
 	// seed the RNG with a somewhat random number. don't do crypto with this kids
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -54,24 +53,24 @@ func Run() {
 		raven.SetDSN(*dsn)
 	}
 
-	session := Shodan{}
+	session := shodanSession{}
 	session.moduleLoader = Loader
 
 	// set up external services
 	session.cmdStack, err = InitCommandStack()
-	util.PanicOnError(err)
+	panicOnError(err)
 
 	session.kvs, err = InitRedis(*redisURI)
-	util.PanicOnError(err)
+	panicOnError(err)
 
 	session.database, err = InitPostgres(*pgURI)
-	util.PanicOnError(err)
+	panicOnError(err)
 
 	session.discord, err = InitDiscord(*token)
-	util.PanicOnError(err)
+	panicOnError(err)
 
 	session.mux, err = InitHTTP(*addr)
-	util.PanicOnError(err)
+	panicOnError(err)
 
 	// raven should receive the git hash when crashing
 	raven.SetRelease(config.VersionGitHash)
@@ -82,8 +81,8 @@ func Run() {
 	defer session.GetDiscord().Close()
 
 	// Setup channels to react to in the main goroutine
-	signalChannel := util.MakeSignalChannel()
-	threadErrorChannel := util.GetThreadErrorChannel()
+	signalChannel := makeSignalChannel()
+	threadErrorChannel := getThreadErrorChannel()
 
 	for {
 		quit := false

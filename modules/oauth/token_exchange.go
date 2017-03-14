@@ -7,8 +7,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"fmt"
-	"errors"
-	"github.com/innovandalism/shodan/util"
+	"github.com/innovandalism/shodan"
 )
 
 type TokenInfo struct{
@@ -32,7 +31,7 @@ func exchangeDiscordToken(code string) (error, *TokenInfo) {
 
 	txReq, err := http.NewRequest("POST", uri, strings.NewReader(postForm.Encode()))
 	if err != nil {
-		err = util.WrapError(err)
+		err = shodan.WrapError(err)
 		return err, nil
 	}
 
@@ -41,23 +40,23 @@ func exchangeDiscordToken(code string) (error, *TokenInfo) {
 	client := http.Client{}
 	txRes, err := client.Do(txReq)
 	if err != nil {
-		err = util.WrapError(err)
+		err = shodan.WrapError(err)
 		return err, nil
 	}
 	txResContent, err := ioutil.ReadAll(txRes.Body)
 	if err != nil {
-		err = util.WrapError(err)
+		err = shodan.WrapError(err)
 		return err, nil
 	}
 	tokenInfo := TokenInfo{}
 	fmt.Printf("%s", txResContent)
 	err = json.Unmarshal(txResContent, &tokenInfo)
 	if err != nil {
-		err = util.WrapError(err)
+		err = shodan.WrapError(err)
 		return err, nil
 	}
 	if tokenInfo.Error != "" {
-		return util.WrapError(errors.New(tokenInfo.Error)), nil
+		return shodan.ErrorHttp(tokenInfo.Error, 403), nil
 	}
 	return nil, &tokenInfo
 }

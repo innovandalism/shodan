@@ -5,3 +5,4 @@ bindata/
 config/githash.go
 assets/webui/public/res/riot
 assets/webui/node_modules
+bin/shodan-ub

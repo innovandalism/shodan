@@ -2,52 +2,57 @@ package shodan
 
 import (
 	discordgo "github.com/bwmarrin/discordgo"
-	"net/http"
 	"database/sql"
-	"fmt"
+	"github.com/gorilla/mux"
 )
 
+type Shodan interface {
+	GetDiscord() *discordgo.Session
+	GetDatabase() *sql.DB
+	GetMux() *mux.Router
+	GetCommandStack() *CommandStack
+	GetRedis() KVS
+}
+
 // Shodan is the central object holding all services
-type Shodan struct {
+type shodanSession struct {
 	discord      *discordgo.Session
 	moduleLoader *ModuleLoader
-	mux          *http.ServeMux
+	mux          *mux.Router
 	cmdStack     *CommandStack
 	kvs          KVS
 	database     *sql.DB
 }
 
 // GetDiscord returns the discordgo session
-func (session *Shodan) GetDiscord() *discordgo.Session {
+func (session *shodanSession) GetDiscord() *discordgo.Session {
 	return session.discord
 }
 
 // GetDatabase returns the DAL (Database Access Layer)
-func (session *Shodan) GetDatabase() *sql.DB {
+func (session *shodanSession) GetDatabase() *sql.DB {
 	return session.database
 }
 
 // GetMux returns the HTTP Muxer
-func (session *Shodan) GetMux() *http.ServeMux {
+func (session *shodanSession) GetMux() *mux.Router {
 	return session.mux
 }
 
 // GetCommandStack returns the command stack
-func (session *Shodan) GetCommandStack() *CommandStack {
+func (session *shodanSession) GetCommandStack() *CommandStack {
 	return session.cmdStack
 }
 
 // GetRedis returns the attached redis key-value-store
-func (session *Shodan) GetRedis() KVS {
+func (session *shodanSession) GetRedis() KVS {
 	return session.kvs
 }
 
 // Bootstrap wires all services up with each other
-func (session *Shodan) Bootstrap() error {
+func (session *shodanSession) Bootstrap() error {
 	session.cmdStack.Attach(session)
 	session.moduleLoader.Attach(session)
-	session.discord.Debug = true
-	fmt.Printf("HELLO WORLD")
 	session.discord.Open()
 
 	return nil

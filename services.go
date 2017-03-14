@@ -8,6 +8,11 @@ import (
 	"gopkg.in/redis.v5"
 	"github.com/bwmarrin/discordgo"
 	"net/http"
+	"github.com/gorilla/mux"
+)
+
+var (
+	DiscordAuthTokenFormat = "Bot %s"
 )
 
 func InitCommandStack() (*CommandStack, error) {
@@ -16,7 +21,7 @@ func InitCommandStack() (*CommandStack, error) {
 }
 
 func InitDiscord(token string) (*discordgo.Session, error) {
-	t := fmt.Sprintf("Bot %s", token)
+	t := fmt.Sprintf(DiscordAuthTokenFormat, token)
 	discord, err := discordgo.New(t)
 	if err != nil {
 		return nil, err
@@ -28,8 +33,8 @@ func InitDiscord(token string) (*discordgo.Session, error) {
 	return discord, nil
 }
 
-func InitHTTP(addr string) (*http.ServeMux, error) {
-	mux := http.NewServeMux()
+func InitHTTP(addr string) (*mux.Router, error) {
+	mux := mux.NewRouter()
 	go http.ListenAndServe(addr, mux)
 	return mux, nil
 }

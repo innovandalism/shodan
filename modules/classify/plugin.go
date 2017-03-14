@@ -22,6 +22,6 @@ func (m *Module) FlagHook() {
 
 }
 
-func (m *Module) Attach(session *shodan.Shodan) {
+func (m *Module) Attach(session shodan.Shodan) {
 
 }

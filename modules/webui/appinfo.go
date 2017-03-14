@@ -1,29 +1,30 @@
 package webui
 
 import (
-	"github.com/innovandalism/shodan/util"
-	"net/http"
 	"encoding/json"
-	"github.com/innovandalism/shodan/config"
 	"fmt"
+	"github.com/innovandalism/shodan"
+	"github.com/innovandalism/shodan/config"
+	"net/http"
 )
 
-type ShodanAppInfo struct{
-	Name string `json:"name"`
-	Description string `json:"des"`
-	Icon string `json:"icon"`
-	ID string `json:"id"`
-	VersionMajor string `json:"version_major"`
-	VersionMinor string  `json:"version_minor"`
+type ShodanAppInfo struct {
+	Name            string `json:"name"`
+	Description     string `json:"des"`
+	Icon            string `json:"icon"`
+	ID              string `json:"id"`
+	VersionMajor    string `json:"version_major"`
+	VersionMinor    string `json:"version_minor"`
 	VersionRevision string `json:"version_revision"`
-	VersionGit string `json:"version_git"`
+	VersionGit      string `json:"version_git"`
 }
 
+// CurrentApplicationInfo gets the app information from Discord
 func CurrentApplicationInfo() (*ShodanAppInfo, error) {
 	info := &ShodanAppInfo{}
 	app, err := mod.shodan.GetDiscord().Application("@me")
 	if err != nil {
-		return nil, util.WrapError(err)
+		return nil, shodan.WrapError(err)
 	}
 	info.Name = app.Name
 	info.Icon = app.Icon
@@ -41,11 +42,11 @@ func CurrentApplicationInfo() (*ShodanAppInfo, error) {
 func handleGetAppInfo(w http.ResponseWriter, _ *http.Request) {
 	appInfo, err := CurrentApplicationInfo()
 	if err != nil {
-		util.ReportThreadError(false, err)
+		shodan.ReportThreadError(false, err)
 	}
 	responseBytes, err := json.Marshal(appInfo)
 	if err != nil {
-		util.ReportThreadError(false, err)
+		shodan.ReportThreadError(false, err)
 	}
 	w.Header().Add("Content-Type", "application/json")
 	w.Write(responseBytes)

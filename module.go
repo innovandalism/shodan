@@ -21,7 +21,7 @@ type ModuleInstance struct {
 // Modules are, by nature of them being loaded though init(), global.
 type Module interface {
 	GetIdentifier() string
-	Attach(*Shodan)
+	Attach(Shodan)
 	FlagHook()
 }
 
@@ -54,7 +54,7 @@ func (loader *ModuleLoader) FlagHook() {
 // Attach attaches enabled modules to the session.
 //
 // After this point it does not matter if a module is marked as enabled or not in the ModuleInstance
-func (loader *ModuleLoader) Attach(session *Shodan) {
+func (loader *ModuleLoader) Attach(session Shodan) {
 	for _, moduleInstance := range Loader.Modules {
 		m := *moduleInstance.Module
 		if *moduleInstance.Enabled {
