@@ -1,8 +1,8 @@
 package shodan
 
 import (
-	discordgo "github.com/bwmarrin/discordgo"
 	"database/sql"
+	discordgo "github.com/bwmarrin/discordgo"
 	"github.com/gorilla/mux"
 )
 

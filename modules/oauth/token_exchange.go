@@ -1,22 +1,22 @@
 package oauth
 
 import (
-	"net/url"
-	"net/http"
-	"strings"
 	"encoding/json"
-	"io/ioutil"
 	"fmt"
 	"github.com/innovandalism/shodan"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"strings"
 )
 
-type TokenInfo struct{
-	AccessToken string `json:"access_token"`
-	TokenType string `json:"token_type"`
-	ExpiresIn int `json:"expires_in"`
+type TokenInfo struct {
+	AccessToken  string `json:"access_token"`
+	TokenType    string `json:"token_type"`
+	ExpiresIn    int    `json:"expires_in"`
 	RefreshToken string `json:"refresh_token"`
-	Scope string `json:"scope"`
-	Error string `json:"error"`
+	Scope        string `json:"scope"`
+	Error        string `json:"error"`
 }
 
 func exchangeDiscordToken(code string) (error, *TokenInfo) {

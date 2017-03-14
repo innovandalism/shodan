@@ -1,8 +1,8 @@
 package shodan
 
 import (
-	"github.com/bwmarrin/discordgo"
 	"fmt"
+	"github.com/bwmarrin/discordgo"
 )
 
 func dUDo(token string, cb func(session *discordgo.Session) error) error {
@@ -31,7 +31,6 @@ func DUFetchProfile(token string) (*discordgo.User, error) {
 	})
 	return u, err
 }
-
 
 func DUGetUserGuilds(token string) ([]*discordgo.UserGuild, error) {
 	var u []*discordgo.UserGuild

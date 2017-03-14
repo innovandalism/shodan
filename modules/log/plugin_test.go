@@ -1,12 +1,12 @@
 package log
 
 import (
-	"testing"
-	"github.com/innovandalism/shodan/test"
 	"database/sql"
 	"github.com/bwmarrin/discordgo"
+	"github.com/innovandalism/shodan/test"
 	_ "github.com/lib/pq"
 	"os"
+	"testing"
 )
 
 func TestCheckInserts(t *testing.T) {
@@ -35,21 +35,21 @@ func TestCheckInserts(t *testing.T) {
 	})
 
 	mockSession.State.ChannelAdd(&discordgo.Channel{
-		ID: "1",
-		Name: "general",
+		ID:      "1",
+		Name:    "general",
 		GuildID: "1",
 	})
 
 	mockMessage := discordgo.MessageCreate{
 		Message: &discordgo.Message{
 			Author: &discordgo.User{
-				ID: "1",
-				Username: "john doe",
+				ID:            "1",
+				Username:      "john doe",
 				Discriminator: "0001",
 			},
 			ChannelID: "1",
-			ID: "1",
-			Content: "Hello World",
+			ID:        "1",
+			Content:   "Hello World",
 		},
 	}
 

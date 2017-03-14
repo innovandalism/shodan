@@ -1,18 +1,18 @@
 package test
 
 import (
-	"github.com/innovandalism/shodan"
+	"database/sql"
 	"github.com/bwmarrin/discordgo"
 	"github.com/gorilla/mux"
-	"database/sql"
+	"github.com/innovandalism/shodan"
 )
 
-type MockShodan struct{
-	FuncGetDiscord func() *discordgo.Session
-	FuncGetMux func() *mux.Router
-	FuncGetDatabase func() *sql.DB
+type MockShodan struct {
+	FuncGetDiscord      func() *discordgo.Session
+	FuncGetMux          func() *mux.Router
+	FuncGetDatabase     func() *sql.DB
 	FuncGetCommandStack func() *shodan.CommandStack
-	FuncGetRedis func() shodan.KVS
+	FuncGetRedis        func() shodan.KVS
 }
 
 func (ms *MockShodan) GetDiscord() *discordgo.Session {
@@ -34,6 +34,3 @@ func (ms *MockShodan) GetCommandStack() *shodan.CommandStack {
 func (ms *MockShodan) GetRedis() shodan.KVS {
 	return ms.FuncGetRedis()
 }
-
-
-

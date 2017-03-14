@@ -5,12 +5,12 @@ import (
 	"github.com/innovandalism/shodan"
 )
 
-type ShodanRole struct{
-	ID int
+type ShodanRole struct {
+	ID    int
 	Guild string
-	Role string
-	Name string
-	Type string
+	Role  string
+	Name  string
+	Type  string
 }
 
 func DBGetAvailableRoles(db *sql.DB, guild string) ([]*ShodanRole, error) {

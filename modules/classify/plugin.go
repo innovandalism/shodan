@@ -5,7 +5,6 @@ import (
 )
 
 type Module struct {
-
 }
 
 var mod = Module{}

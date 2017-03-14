@@ -17,7 +17,7 @@ func DBGetToken(db *sql.DB, id int) (string, error) {
 	var token string
 	err := row.Scan(&token)
 	if err != nil {
-		return "",err
+		return "", err
 	}
-	return token,nil
+	return token, nil
 }

@@ -1,12 +1,12 @@
 package shodan
 
 import (
-	"strings"
 	"encoding/json"
-	"fmt"
 	"errors"
-	"net/http"
+	"fmt"
 	"io/ioutil"
+	"net/http"
+	"strings"
 )
 
 var VerifyJWTFunc func(string) (string, error) = func(t string) (string, error) {
@@ -37,7 +37,7 @@ func ReadRequest(r *http.Request) (*RequestEnvelope, error) {
 		return nil, err
 	}
 	req.Data = body
-	if authHeader:=r.Header.Get("Authorization"); authHeader != "" {
+	if authHeader := r.Header.Get("Authorization"); authHeader != "" {
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			return nil, WrapErrorHttp(errors.New("ReadRequest: Authentication header invalid"), 400)

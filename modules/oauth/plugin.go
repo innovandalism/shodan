@@ -1,10 +1,10 @@
 package oauth
 
 import (
-	"flag"
-	"github.com/innovandalism/shodan"
 	"errors"
+	"flag"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/innovandalism/shodan"
 	"strconv"
 )
 
@@ -13,7 +13,7 @@ type Module struct {
 	clientid     *string
 	clientsecret *string
 	returnuri    *string
-	jwtSecret   *string
+	jwtSecret    *string
 }
 
 var mod = Module{}
@@ -33,7 +33,7 @@ func (m *Module) FlagHook() {
 	m.jwtSecret = flag.String("oauth_jwt_secret", "", "JWT Secret")
 }
 
-type Claims struct{
+type Claims struct {
 	Id string
 }
 

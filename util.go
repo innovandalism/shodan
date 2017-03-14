@@ -3,10 +3,9 @@ package shodan
 import (
 	"fmt"
 	"os"
-	"strings"
 	"os/signal"
+	"strings"
 )
-
 
 func MentionsMe(userID string, content string) bool {
 	mention := fmt.Sprintf("<@%s>", userID)

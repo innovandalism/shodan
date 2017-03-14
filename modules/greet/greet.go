@@ -1,16 +1,15 @@
 package greet
 
 import (
-	"github.com/innovandalism/shodan"
-	"github.com/bwmarrin/discordgo"
 	"fmt"
+	"github.com/bwmarrin/discordgo"
+	"github.com/innovandalism/shodan"
 )
 
 var (
 	channelIDKeyFormat = "%s_greetChannelId"
-	messageKeyFormat = "%s_greetMessage"
+	messageKeyFormat   = "%s_greetMessage"
 )
-
 
 func getHandleGuildMemberAdd(s shodan.Shodan) interface{} {
 	return func(session *discordgo.Session, event *discordgo.GuildMemberAdd) {
@@ -46,7 +45,7 @@ func getHandleGuildMemberAdd(s shodan.Shodan) interface{} {
 			shodan.ReportThreadError(false, err)
 		}
 
-		message := fmt.Sprintf(messageFormat, "<@!" + event.User.ID + ">")
+		message := fmt.Sprintf(messageFormat, "<@!"+event.User.ID+">")
 
 		session.ChannelMessageSend(channelID, message)
 		shodan.ReportThreadError(false, err)

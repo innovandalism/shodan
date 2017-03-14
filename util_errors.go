@@ -1,13 +1,13 @@
 package shodan
 
 import (
-	"github.com/getsentry/raven-go"
-	"os"
+	"errors"
 	"fmt"
-	"runtime"
+	"github.com/getsentry/raven-go"
 	"github.com/innovandalism/shodan/config"
 	"net/http"
-	"errors"
+	"os"
+	"runtime"
 )
 
 var errorChannel chan *ThreadError
@@ -153,7 +153,7 @@ func WrapErrorHttp(e error, code int) error {
 func HttpSendError(w http.ResponseWriter, err error) error {
 	status := 500
 	de, isDe := err.(*DebuggableError)
-	if isDe	{
+	if isDe {
 		status = de.Status
 		de.Capture()
 	}

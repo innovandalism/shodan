@@ -3,6 +3,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -10,7 +11,6 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	"errors"
 )
 
 func main() {

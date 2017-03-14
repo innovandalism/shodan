@@ -1,16 +1,16 @@
 package webui
 
 import (
+	"flag"
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/innovandalism/shodan"
 	"github.com/innovandalism/shodan/bindata"
-	"net/http"
-	"flag"
 	"log"
+	"net/http"
 )
 
 type Module struct {
-	shodan shodan.Shodan
+	shodan  shodan.Shodan
 	webroot *string
 }
 

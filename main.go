@@ -25,7 +25,7 @@ func Run() {
 
 	// essential flags
 	var (
-		err error
+		err      error
 		token    = flag.String("token", config.DefaultToken, "discordgo Bot Authentication Token")
 		addr     = flag.String("web_addr", "", "Address to bind HTTP listener to")
 		noweb    = flag.Bool("web_disable", false, "Disable WebUI")

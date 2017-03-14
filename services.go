@@ -2,13 +2,13 @@ package shodan
 
 import (
 	"database/sql"
-	_ "github.com/lib/pq"
-	"time"
 	"fmt"
-	"gopkg.in/redis.v5"
 	"github.com/bwmarrin/discordgo"
-	"net/http"
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
+	"gopkg.in/redis.v5"
+	"net/http"
+	"time"
 )
 
 var (
@@ -68,7 +68,7 @@ func InitRedis(url string) (KVS, error) {
 	return &kvs, nil
 }
 
-type KVS interface{
+type KVS interface {
 	Set(string, string) error
 	SetWithDefaultTTL(string, string) error
 	Get(string) (string, error)
@@ -76,10 +76,10 @@ type KVS interface{
 	Clear(string) error
 }
 
-type RedisKVS struct{
-	client *redis.Client
+type RedisKVS struct {
+	client            *redis.Client
 	defaultCacheTimer time.Duration
-	prefix string
+	prefix            string
 }
 
 func (r *RedisKVS) formatPrefix(key string) string {
@@ -102,6 +102,6 @@ func (r *RedisKVS) HasKey(key string) (bool, error) {
 	return r.client.Exists(r.formatPrefix(key)).Result()
 }
 
-func (r *RedisKVS) Clear(key string) (error) {
+func (r *RedisKVS) Clear(key string) error {
 	return r.client.Del(r.formatPrefix(key)).Err()
 }

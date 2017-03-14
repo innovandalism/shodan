@@ -418,7 +418,7 @@ func SetAllowUnknownFlags(allowed bool) {
 	*allowUnknownFlags = allowed
 }
 
-func SetConfigUpdateInterval(interval time.Duration) { 
+func SetConfigUpdateInterval(interval time.Duration) {
 	if parsed {
 		panic("iniflags: SetConfigUpdateInterval() must be called before Parse()")
 	}

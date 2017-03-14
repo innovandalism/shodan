@@ -2,9 +2,9 @@ package webui
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"net/http"
 	"github.com/gorilla/mux"
 	"github.com/innovandalism/shodan"
+	"net/http"
 )
 
 func handleGetUserProfile(w http.ResponseWriter, r *http.Request) {
@@ -35,8 +35,8 @@ func handleGetUserProfile(w http.ResponseWriter, r *http.Request) {
 
 	res = shodan.ResponseEnvelope{
 		Status: 200,
-		Data: struct{
-			User *discordgo.User `json:"user"`
+		Data: struct {
+			User   *discordgo.User        `json:"user"`
 			Guilds []*discordgo.UserGuild `json:"guilds"`
 		}{u, g},
 	}
@@ -79,7 +79,7 @@ func handleGetRolesForGuild(w http.ResponseWriter, r *http.Request) {
 	}
 	res = shodan.ResponseEnvelope{
 		Status: 200,
-		Data: data,
+		Data:   data,
 	}
 	shodan.SendResponse(w, &res)
 }

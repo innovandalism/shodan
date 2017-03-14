@@ -5,7 +5,7 @@ import (
 )
 
 // Module holds this modules data and methods
-type Module struct {}
+type Module struct{}
 
 var mod = Module{}
 

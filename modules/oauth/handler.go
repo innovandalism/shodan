@@ -2,8 +2,8 @@ package oauth
 
 import (
 	"fmt"
-	"net/http"
 	"github.com/innovandalism/shodan"
+	"net/http"
 )
 
 type ExchangeTokenRequest struct {
