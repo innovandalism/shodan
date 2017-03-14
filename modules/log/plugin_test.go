@@ -9,6 +9,7 @@ import (
 	"testing"
 )
 
+// TestCheckInserts is broken. Don't call it.
 func TestCheckInserts(t *testing.T) {
 	// goodbye for now!
 	t.FailNow()

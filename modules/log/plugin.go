@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-// Module holds this modules data and methods
+// Module holds data for this module and implements the shodan.Module interface
 type Module struct {
 	shodan shodan.Shodan
 }
@@ -17,17 +17,17 @@ func init() {
 	shodan.Loader.LoadModule(&mod)
 }
 
-// GetIdentifier returns the name of the module. Purely used for statistics and flag registration
+// GetIdentifier returns the identifier for this module
 func (m *Module) GetIdentifier() string {
 	return "log"
 }
 
-// FlagHook registers any flags needed for this module
+// FlagHook triggers before flags are parsed to allow this module to add options
 func (m *Module) FlagHook() {
 
 }
 
-// Attach attaches functionality in this module to Shodan
+// Attach attaches this module to a Shodan session
 func (m *Module) Attach(session shodan.Shodan) {
 	m.shodan = session
 	session.GetDiscord().AddHandler(onMessageCreate)

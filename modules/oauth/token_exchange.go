@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+// TokenInfo represents the data returned by the OAuth 2 token exchange
 type TokenInfo struct {
 	AccessToken  string `json:"access_token"`
 	TokenType    string `json:"token_type"`

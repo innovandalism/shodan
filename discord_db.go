@@ -36,7 +36,7 @@ func DBUpsertUser(db *sql.DB, user *discordgo.User) error {
 	return err
 }
 
-// DBUpsertGuild adds a message in the database
+// DBUpsertMessage adds a message in the database
 func DBUpsertMessage(db *sql.DB, message *discordgo.Message) error {
 	stmt, err := db.Prepare("INSERT INTO discord_message (id, channel, userid, message, time) VALUES ($1, $2, $3, $4,$5)")
 	if err != nil {

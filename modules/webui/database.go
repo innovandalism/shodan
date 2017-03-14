@@ -5,6 +5,7 @@ import (
 	"github.com/innovandalism/shodan"
 )
 
+// A ShodanRole represents a managed discord role
 type ShodanRole struct {
 	ID    int
 	Guild string
@@ -13,6 +14,7 @@ type ShodanRole struct {
 	Type  string
 }
 
+// DBGetAvailableRoles returns the assigned roles for a guild
 func DBGetAvailableRoles(db *sql.DB, guild string) ([]*ShodanRole, error) {
 	row, err := db.Query("SELECT id, guild, role, name, type FROM shodan_roles WHERE guild = $1", guild)
 	if err != nil {

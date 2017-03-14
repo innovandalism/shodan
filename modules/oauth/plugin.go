@@ -8,6 +8,7 @@ import (
 	"strconv"
 )
 
+// Module holds data for this module and implements the shodan.Module interface
 type Module struct {
 	shodan       shodan.Shodan
 	clientid     *string
@@ -22,10 +23,12 @@ func init() {
 	shodan.Loader.LoadModule(&mod)
 }
 
+// GetIdentifier returns the identifier for this module
 func (_ *Module) GetIdentifier() string {
 	return "oauth"
 }
 
+// FlagHook triggers before flags are parsed to allow this module to add options
 func (m *Module) FlagHook() {
 	m.clientid = flag.String("oauth_clientid", "", "OAuth Client ID")
 	m.clientsecret = flag.String("oauth_clientsecret", "", "OAuth Client Secret")
@@ -33,19 +36,23 @@ func (m *Module) FlagHook() {
 	m.jwtSecret = flag.String("oauth_jwt_secret", "", "JWT Secret")
 }
 
+// Claims implements jwt.Claims and holds the user ID embedded in the JWT
 type Claims struct {
 	Id string
 }
 
+// Valid checks if the ID provided is convertable into an integer
 func (sc *Claims) Valid() error {
 	_, err := sc.GetID()
 	return err
 }
 
+// GetID casts and returns the ID as an int64
 func (sc *Claims) GetID() (int64, error) {
 	return strconv.ParseInt(sc.Id, 10, 32)
 }
 
+// Attach attaches this module to a Shodan session
 func (m *Module) Attach(session shodan.Shodan) {
 	if *m.jwtSecret == "" {
 		panic(errors.New("JWT secret not set. Refusing operation."))

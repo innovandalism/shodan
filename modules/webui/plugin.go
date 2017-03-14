@@ -9,6 +9,7 @@ import (
 	"net/http"
 )
 
+// Module holds data for this module and implements the shodan.Module interface
 type Module struct {
 	shodan  shodan.Shodan
 	webroot *string
@@ -20,14 +21,17 @@ func init() {
 	shodan.Loader.LoadModule(&mod)
 }
 
+// GetIdentifier returns the identifier for this module
 func (_ *Module) GetIdentifier() string {
 	return "webui"
 }
 
+// FlagHook triggers before flags are parsed to allow this module to add options
 func (m *Module) FlagHook() {
-	m.webroot = flag.String("webui_webroot", "", "Specify to serve webui from filesystem; serve from embeded binary data if omitted")
+	m.webroot = flag.String("webui_webroot", "", "Specify to serve webui from filesystem; serve from embedded binary data if omitted")
 }
 
+// Attach attaches this module to a Shodan session
 func (m *Module) Attach(session shodan.Shodan) {
 	m.shodan = session
 
@@ -39,11 +43,11 @@ func (m *Module) Attach(session shodan.Shodan) {
 		session.GetMux().PathPrefix("/ui/").Handler(http.StripPrefix("/ui/", http.FileServer(http.Dir(*m.webroot))))
 	} else {
 		log.Print("Serving webui from bindata\n")
-		session.GetMux().PathPrefix("/ui/").Handler(http.StripPrefix("/ui/", http.FileServer(GetPublicAssetFS())))
+		session.GetMux().PathPrefix("/ui/").Handler(http.StripPrefix("/ui/", http.FileServer(getPublicAssetFS())))
 	}
 	session.GetMux().Handle("/", http.RedirectHandler("/ui/", 301))
 }
 
-func GetPublicAssetFS() *assetfs.AssetFS {
+func getPublicAssetFS() *assetfs.AssetFS {
 	return &assetfs.AssetFS{Asset: bindata.Asset, AssetDir: bindata.AssetDir, AssetInfo: bindata.AssetInfo, Prefix: "assets/webui/public"}
 }

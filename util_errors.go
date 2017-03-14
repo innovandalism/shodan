@@ -162,9 +162,5 @@ func HttpSendError(w http.ResponseWriter, err error) error {
 		Error:  fmt.Sprintf("%s", err),
 	}
 	err = SendResponse(w, &res)
-	if err != nil {
-		err = err
-		return err
-	}
-	return nil
+	return err
 }
