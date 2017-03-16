@@ -26,21 +26,36 @@ func handleGetUserProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	g, err := shodan.DUGetUserGuilds(req.Token)
-
+	// use Session.UserGuilds if this acts up
+	botGuilds := mod.shodan.GetDiscord().State.Guilds
+	userGuilds, err := shodan.DUGetUserGuilds(req.Token)
 	if err != nil {
 		shodan.HttpSendError(w, err)
 		return
 	}
-
+	// build two arrays:
+	// commonGuilds are the guilds both the bot and the user are joined to
+	// ownedGuilds are the guilds the user has owner flags for
+	var commonGuilds, ownedGuilds []*discordgo.UserGuild
+	for _, userGuild := range userGuilds {
+		if userGuild.Owner {
+			ownedGuilds = append(ownedGuilds, userGuild)
+		}
+		for _, botGuild := range botGuilds {
+			if botGuild.ID == userGuild.ID {
+				commonGuilds = append(commonGuilds, userGuild)
+				break
+			}
+		}
+	}
 	res = shodan.ResponseEnvelope{
 		Status: 200,
 		Data: struct {
-			User   *discordgo.User        `json:"user"`
-			Guilds []*discordgo.UserGuild `json:"guilds"`
-		}{u, g},
+			User        *discordgo.User        `json:"user"`
+			Guilds      []*discordgo.UserGuild `json:"commonGuilds"`
+			OwnedGuilds []*discordgo.UserGuild `json:"ownedGuilds"`
+		}{u, commonGuilds, ownedGuilds},
 	}
-
 	shodan.SendResponse(w, &res)
 }
 
