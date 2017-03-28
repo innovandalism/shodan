@@ -17,6 +17,7 @@ type ShodanAppInfo struct {
 	VersionMinor    string `json:"version_minor"`
 	VersionRevision string `json:"version_revision"`
 	VersionGit      string `json:"version_git"`
+	SingleGuildMode string `json:"single_guild_mode"`
 }
 
 // CurrentApplicationInfo gets the app information from Discord
@@ -35,6 +36,7 @@ func CurrentApplicationInfo() (*ShodanAppInfo, error) {
 	info.VersionMinor = fmt.Sprint(config.VersionMinor)
 	info.VersionRevision = fmt.Sprint(config.VersionRevision)
 	info.VersionGit = config.VersionGitHash
+	info.SingleGuildMode = config.SingleGuildMode
 
 	return info, nil
 }

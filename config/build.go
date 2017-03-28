@@ -7,6 +7,10 @@ const (
 	Debug           bool = true
 	VersionMajor    int  = 1
 	VersionMinor    int  = 0
-	VersionRevision int  = 1
+	VersionRevision int  = 2
 	DefaultToken         = ""
+)
+
+var (
+	SingleGuildMode      = ""
 )

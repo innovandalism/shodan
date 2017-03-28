@@ -25,7 +25,7 @@ type ResponseEnvelope struct {
 }
 
 func (req *RequestEnvelope) Authenticated() bool {
-	return len(req.Token) < 1
+	return !(len(req.Token) < 1)
 }
 
 // ReadRequest reads the given Request and converts it into a standard API request

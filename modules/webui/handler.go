@@ -14,7 +14,7 @@ func handleGetUserProfile(w http.ResponseWriter, r *http.Request) {
 		shodan.HttpSendError(w, err)
 		return
 	}
-	if req.Authenticated() {
+	if !req.Authenticated() {
 		shodan.HttpSendError(w, shodan.ErrorHttp("authorization required", 401))
 		return
 	}
@@ -27,7 +27,7 @@ func handleGetUserProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// use Session.UserGuilds if this acts up
-	botGuilds := mod.shodan.GetDiscord().State.Guilds
+	botGuilds := copyGuildState(mod.shodan.GetDiscord().State)
 	userGuilds, err := shodan.DUGetUserGuilds(req.Token)
 	if err != nil {
 		shodan.HttpSendError(w, err)
@@ -66,7 +66,7 @@ func handleGetRolesForGuild(w http.ResponseWriter, r *http.Request) {
 		shodan.HttpSendError(w, err)
 		return
 	}
-	if req.Authenticated() {
+	if !req.Authenticated() {
 		shodan.HttpSendError(w, shodan.ErrorHttp("Authorization required", 401))
 		return
 	}
@@ -97,4 +97,15 @@ func handleGetRolesForGuild(w http.ResponseWriter, r *http.Request) {
 		Data:   data,
 	}
 	shodan.SendResponse(w, &res)
+}
+
+// safely copy guilds from state
+func copyGuildState(state *discordgo.State) []discordgo.Guild {
+	state.RLock()
+	defer state.RUnlock()
+	retVal := make([]discordgo.Guild, len(state.Guilds))
+	for i, g := range state.Guilds {
+		retVal[i] = *g
+	}
+	return retVal
 }

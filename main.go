@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"os"
 	"time"
+	"log"
 )
 
 // Run invokes the main loop, core services like HTTP and discordgo.
@@ -26,6 +27,7 @@ func Run() {
 	// essential flags
 	var (
 		err      error
+		sgm	 = flag.String("sgm", "", "Single Guild Mode GuildID")
 		token    = flag.String("token", config.DefaultToken, "discordgo Bot Authentication Token")
 		addr     = flag.String("web_addr", "", "Address to bind HTTP listener to")
 		noweb    = flag.Bool("web_disable", false, "Disable WebUI")
@@ -39,6 +41,9 @@ func Run() {
 
 	// use iniflags instead of flag, this allows for loading ini files
 	iniflags.Parse()
+
+	// Single-Guild-Mode hides all multiguild UI and pre-populates the selected guild
+	config.SingleGuildMode = *sgm
 
 	// check our required set of flags
 	if len(*token) == 0 {
