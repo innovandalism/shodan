@@ -11,7 +11,6 @@ import (
 	"math/rand"
 	"os"
 	"time"
-	"log"
 )
 
 // Run invokes the main loop, core services like HTTP and discordgo.
