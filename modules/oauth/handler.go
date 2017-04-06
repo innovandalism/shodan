@@ -7,7 +7,7 @@ import (
 )
 
 func handleAuthenticate(w http.ResponseWriter, _ *http.Request) {
-	uri := fmt.Sprintf("https://discordapp.com/oauth2/authorize?client_id=%s&scope=identify guilds&response_type=code&redirect_uri=%s", *mod.clientid, *mod.returnuri)
+	uri := fmt.Sprintf("https://discordapp.com/oauth2/authorize?client_id=%s&scope=identify guilds&response_type=code&redirect_uri=%s", mod.clientid, mod.returnuri)
 	shodan.HttpForward(w, uri)
 }
 

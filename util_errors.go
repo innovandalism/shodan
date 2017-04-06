@@ -53,12 +53,10 @@ func errorMessage(err error) {
 
 	fmt.Println("")
 
-	// try to get a stack trace if this is a debug build
-	if config.Debug {
-		buf := make([]byte, 1024)
-		runtime.Stack(buf, false)
-		fmt.Printf("%s\n", buf)
-	}
+	// TODO: Check if debuggable
+	buf := make([]byte, 1024)
+	runtime.Stack(buf, false)
+	fmt.Printf("%s\n", buf)
 }
 
 // Error handler. Only call from main thread.

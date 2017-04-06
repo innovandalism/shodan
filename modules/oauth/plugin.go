@@ -2,38 +2,34 @@ package oauth
 
 import (
 	"errors"
-	"flag"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/innovandalism/shodan"
 	"strconv"
+	"os"
 )
 
 // Module holds data for this module and implements the shodan.Module interface
 type Module struct {
 	shodan       shodan.Shodan
-	clientid     *string
-	clientsecret *string
-	returnuri    *string
-	jwtSecret    *string
+	clientid     string
+	clientsecret string
+	returnuri    string
+	jwtSecret    string
 }
 
 var mod = Module{}
 
 func init() {
+	mod.clientid = os.Getenv("OAUTH_CLIENTID")
+	mod.clientsecret = os.Getenv("OAUTH_SECRET")
+	mod.jwtSecret = os.Getenv("OAUTH_JWTSECRET")
+	mod.returnuri = os.Getenv("OAUTH_REDIRECT")
 	shodan.Loader.LoadModule(&mod)
 }
 
 // GetIdentifier returns the identifier for this module
 func (_ *Module) GetIdentifier() string {
 	return "oauth"
-}
-
-// FlagHook triggers before flags are parsed to allow this module to add options
-func (m *Module) FlagHook() {
-	m.clientid = flag.String("oauth_clientid", "", "OAuth Client ID")
-	m.clientsecret = flag.String("oauth_clientsecret", "", "OAuth Client Secret")
-	m.returnuri = flag.String("oauth_returnuri", "", "OAuth Client Secret")
-	m.jwtSecret = flag.String("oauth_jwt_secret", "", "JWT Secret")
 }
 
 // Claims implements jwt.Claims and holds the user ID embedded in the JWT
@@ -54,7 +50,7 @@ func (sc *Claims) GetID() (int64, error) {
 
 // Attach attaches this module to a Shodan session
 func (m *Module) Attach(session shodan.Shodan) {
-	if *m.jwtSecret == "" {
+	if m.jwtSecret == "" {
 		panic(errors.New("JWT secret not set. Refusing operation."))
 	}
 	m.shodan = session
@@ -66,13 +62,13 @@ func (m *Module) Attach(session shodan.Shodan) {
 
 func makeJwt(id int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &Claims{strconv.FormatInt(int64(id), 10)})
-	return token.SignedString([]byte(*mod.jwtSecret))
+	return token.SignedString([]byte(mod.jwtSecret))
 }
 
 func verifyJwt(t string) (string, error) {
 	claims := Claims{}
 	jwt, err := jwt.ParseWithClaims(t, &claims, func(t *jwt.Token) (interface{}, error) {
-		return []byte(*mod.jwtSecret), nil
+		return []byte(mod.jwtSecret), nil
 	})
 	if err != nil {
 		return "", shodan.WrapErrorHttp(err, 403)

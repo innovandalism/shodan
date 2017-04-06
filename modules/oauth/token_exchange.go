@@ -25,10 +25,10 @@ func exchangeDiscordToken(code string) (error, *TokenInfo) {
 
 	postForm := url.Values{}
 	postForm.Add("grant_type", "authorization_code")
-	postForm.Add("client_id", *mod.clientid)
-	postForm.Add("client_secret", *mod.clientsecret)
+	postForm.Add("client_id", mod.clientid)
+	postForm.Add("client_secret", mod.clientsecret)
 	postForm.Add("code", code)
-	postForm.Add("redirect_uri", *mod.returnuri)
+	postForm.Add("redirect_uri", mod.returnuri)
 
 	txReq, err := http.NewRequest("POST", uri, strings.NewReader(postForm.Encode()))
 	if err != nil {

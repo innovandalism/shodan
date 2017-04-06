@@ -3,11 +3,9 @@ package shodan
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"github.com/getsentry/raven-go"
 	"github.com/innovandalism/shodan/config"
-	"github.com/vharitonsky/iniflags"
 	"math/rand"
 	"os"
 	"time"
@@ -23,57 +21,48 @@ func Run() {
 	// seed the RNG with a somewhat random number. don't do crypto with this kids
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	// essential flags
-	var (
-		err      error
-		sgm	 = flag.String("sgm", "", "Single Guild Mode GuildID")
-		token    = flag.String("token", config.DefaultToken, "discordgo Bot Authentication Token")
-		addr     = flag.String("web_addr", "", "Address to bind HTTP listener to")
-		noweb    = flag.Bool("web_disable", false, "Disable WebUI")
-		dsn      = flag.String("dsn", "", "Sentry DSN")
-		redisURI = flag.String("redis", "redis://127.0.0.1/", "Redis URI")
-		pgURI    = flag.String("postgres", "postgres://127.0.0.1/shodan", "Postgres URI")
-	)
-
-	// notify all modules that this is the last chance to ask for flags
-	Loader.FlagHook()
-
-	// use iniflags instead of flag, this allows for loading ini files
-	iniflags.Parse()
+	sgm := os.Getenv("SGM")
+	token := os.Getenv("DISCORD_TOKEN")
+	addr := os.Getenv("WEB_ADDR")
+	dsn := os.Getenv("DSN")
+	redisURI := os.Getenv("REDIS_URL")
+	pgURI := os.Getenv("POSTGRES_URL")
 
 	// Single-Guild-Mode hides all multiguild UI and pre-populates the selected guild
-	config.SingleGuildMode = *sgm
+	config.SingleGuildMode = sgm
 
 	// check our required set of flags
-	if len(*token) == 0 {
+	if len(token) == 0 {
 		panic(errors.New("discordgo token must be provided"))
 	}
 
-	if len(*addr) == 0 && !*noweb {
-		panic(errors.New("either web_addr or web_disable must be provided"))
+	if len(addr) == 0 {
+		panic(errors.New("no idea where I should bind, please set WEB_ADDR"))
 	}
 
-	if len(*dsn) != 0 {
-		raven.SetDSN(*dsn)
+	if len(dsn) != 0 {
+		raven.SetDSN(dsn)
 	}
 
 	session := shodanSession{}
 	session.moduleLoader = Loader
 
+	var err error
+
 	// set up external services
 	session.cmdStack, err = InitCommandStack()
 	panicOnError(err)
 
-	session.kvs, err = InitRedis(*redisURI)
+	session.kvs, err = InitRedis(redisURI)
 	panicOnError(err)
 
-	session.database, err = InitPostgres(*pgURI)
+	session.database, err = InitPostgres(pgURI)
 	panicOnError(err)
 
-	session.discord, err = InitDiscord(*token)
+	session.discord, err = InitDiscord(token)
 	panicOnError(err)
 
-	session.mux, err = InitHTTP(*addr)
+	session.mux, err = InitHTTP(addr)
 	panicOnError(err)
 
 	// raven should receive the git hash when crashing
