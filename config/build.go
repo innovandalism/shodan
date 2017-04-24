@@ -4,11 +4,11 @@
 package config
 
 const (
-	VersionMajor    int  = 1
-	VersionMinor    int  = 0
-	VersionRevision int  = 3
+	VersionMajor    int = 1
+	VersionMinor    int = 0
+	VersionRevision int = 4
 )
 
 var (
-	SingleGuildMode      = ""
+	SingleGuildMode = ""
 )

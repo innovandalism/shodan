@@ -5,12 +5,15 @@ import (
 	"github.com/innovandalism/shodan"
 )
 
+// IgnoreCommand is an empty struct that holds this commands methods
 type IgnoreCommand struct{}
 
-func (_ *IgnoreCommand) GetNames() []string {
+// GetNames returns the command aliases for this command
+func (*IgnoreCommand) GetNames() []string {
 	return []string{"ignore"}
 }
 
+// Invoke runs the command. This command will block a user. Currently inoperable.
 func (command *IgnoreCommand) Invoke(ci *shodan.CommandInvocation) error {
 	if len(ci.Arguments) != 1 {
 		err := ci.Helpers.Reply("This command requires one argument")

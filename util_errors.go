@@ -12,11 +12,13 @@ import (
 
 var errorChannel chan *ThreadError
 
+// A ThreadError wraps an error that occured in another thread, indicating if the error was fatal and the application should be terminated
 type ThreadError struct {
 	IsFatal bool
 	Error   error
 }
 
+// DebuggableError implements Error and stores a HTTP status code and stack traces in addition to an error message.
 type DebuggableError struct {
 	error  string
 	Status int
@@ -30,10 +32,12 @@ func panicOnError(err error) {
 	}
 }
 
+// Error returns the error message
 func (e *DebuggableError) Error() string {
 	return e.error
 }
 
+// Capture sends this error to Sentry for further analysis
 func (e *DebuggableError) Capture() {
 	raven.DefaultClient.Capture(e.packet, nil)
 }

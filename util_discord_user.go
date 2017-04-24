@@ -17,6 +17,7 @@ func dUDo(token string, cb func(session *discordgo.Session) error) error {
 	return err
 }
 
+// DUFetchProfile fetches a users own profile using the provided token (DU: Do as User)
 func DUFetchProfile(token string) (*discordgo.User, error) {
 	var u *discordgo.User
 	var err error
@@ -32,6 +33,7 @@ func DUFetchProfile(token string) (*discordgo.User, error) {
 	return u, err
 }
 
+// DUGetUserGuild gets a users joined guilds using the provided token (DU: Do as User)
 func DUGetUserGuilds(token string) ([]*discordgo.UserGuild, error) {
 	var u []*discordgo.UserGuild
 	var err error

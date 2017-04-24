@@ -9,15 +9,18 @@ import (
 	"time"
 )
 
+// VersionCommand holds information for this command, including bot startup time and a MemStats struct pointer
 type VersionCommand struct {
 	startupTime time.Time
 	memStats    *runtime.MemStats
 }
 
+// GetNames returns the command aliases for this command
 func (vc *VersionCommand) GetNames() []string {
 	return []string{"version", "info"}
 }
 
+// Invoke runs the command. This commands returns a rich embed with version and runtime information.
 func (vc *VersionCommand) Invoke(ci *shodan.CommandInvocation) error {
 	v := fmt.Sprintf("%d.%d.%d", config.VersionMajor, config.VersionMinor, config.VersionRevision)
 	me := &discordgo.MessageEmbed{

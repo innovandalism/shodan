@@ -7,8 +7,10 @@ import (
 	"strconv"
 )
 
+// MemoryCommand is an empty struct that holds this commands methods
 type MemoryCommand struct{}
 
+// GetNames returns the command aliases for this command
 func (command *MemoryCommand) GetNames() []string {
 	return []string{"memory", "mem"}
 }

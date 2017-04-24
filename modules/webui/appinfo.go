@@ -8,6 +8,7 @@ import (
 	"net/http"
 )
 
+// ShodanAppInfo holds meta information requested by the UI on load.
 type ShodanAppInfo struct {
 	Name            string `json:"name"`
 	Description     string `json:"des"`

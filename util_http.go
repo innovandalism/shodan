@@ -13,17 +13,20 @@ var VerifyJWTFunc func(string) (string, error) = func(t string) (string, error) 
 	return "", WrapErrorHttp(errors.New("VerifyJWTFunc not overwritten, did you load mod_oauth?"), 500)
 }
 
+// RequestEnvelope wraps a HTTP request to the SHODAN-API
 type RequestEnvelope struct {
 	Data  []byte
 	Token string
 }
 
+// ResponseEnvelope wraps a HTTP respone from the SHODAN-API
 type ResponseEnvelope struct {
 	Status int32       `json:"status"`
 	Error  string      `json:"err"`
 	Data   interface{} `json:"data"`
 }
 
+// Checks if a token is provided. Because ReadRequest will fail if a token is provided, but doesn't validate, no further checking is required; this is a cheap call.
 func (req *RequestEnvelope) Authenticated() bool {
 	return !(len(req.Token) < 1)
 }

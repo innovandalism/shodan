@@ -15,7 +15,17 @@ func (c *ChannelCmd) GetNames() []string {
 	return []string{"greet"}
 }
 
-// Invoke runs the command
+// Invoke runs the command. This command allows configuring the greet module.
+//
+// Actions include:
+//
+// status: returns a summary of the configuration
+//
+// set: sets the current channel as the greeting channel
+//
+// clear: clears the current configuration
+//
+// msg: set the message used to greet new users
 func (c *ChannelCmd) Invoke(ci *shodan.CommandInvocation) error {
 	if len(ci.Arguments) < 1 {
 		err := ci.Helpers.Reply("greet [status|set|clear|msg]")
@@ -86,7 +96,7 @@ func (c *ChannelCmd) Invoke(ci *shodan.CommandInvocation) error {
 	return nil
 }
 
-// GetRequiredPermission returns permission bits for discord ACL permission system
+// GetRequiredPermission returns permission bits for discord ACL permission system. This command requires discordgo.PermissionManageServer
 func (c *ChannelCmd) GetRequiredPermission() int {
 	return discordgo.PermissionManageServer
 }

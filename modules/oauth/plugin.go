@@ -4,8 +4,8 @@ import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/innovandalism/shodan"
-	"strconv"
 	"os"
+	"strconv"
 )
 
 // Module holds data for this module and implements the shodan.Module interface
