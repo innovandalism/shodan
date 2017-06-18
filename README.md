@@ -27,4 +27,4 @@ These are the command line switches currently available in core builds.
 * `-web_addr=<addr>` - Provide an IP address and port to listen on. For instance, `127.0.0.1:9090` will make SHODAN listen on the loopback device at port 9090.
 * `-m_<modulename>` - Boolean flags to enable certain modules. `log`, `oauth`, `webui`, `version` are available right now.
 
-*More documentation pending, catch me on [Discord](https://discord.gg/cbnJd) if you need help.*
+*More documentation pending, catch me (Gant) on [Discord](https://discord.gg/D4aMvJ7) if you need help.*
