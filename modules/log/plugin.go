@@ -1,9 +1,10 @@
 package log
 
 import (
+	"log"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/innovandalism/shodan"
-	"log"
 )
 
 // Module holds data for this module and implements the shodan.Module interface
@@ -29,7 +30,7 @@ func (m *Module) Attach(session shodan.Shodan) {
 }
 
 func onMessageCreate(s *discordgo.Session, message *discordgo.MessageCreate) {
-	err := shodan.DBUpsertUser(mod.shodan.GetDatabase(), message.Author)
+	err := DBUpsertUser(mod.shodan.GetDatabase(), message.Author)
 	if err != nil {
 		log.Printf("logger: err user: %s\n", err.Error())
 		return
@@ -44,17 +45,17 @@ func onMessageCreate(s *discordgo.Session, message *discordgo.MessageCreate) {
 		log.Printf("logger: err guild: %s\n", err.Error())
 		return
 	}
-	err = shodan.DBUpsertGuild(mod.shodan.GetDatabase(), guild)
+	err = DBUpsertGuild(mod.shodan.GetDatabase(), guild)
 	if err != nil {
 		log.Printf("logger: err guild: %s\n", err.Error())
 		return
 	}
-	err = shodan.DBUpsertChannel(mod.shodan.GetDatabase(), channel)
+	err = DBUpsertChannel(mod.shodan.GetDatabase(), channel)
 	if err != nil {
 		log.Printf("logger: err channel: %s\n", err.Error())
 		return
 	}
-	err = shodan.DBUpsertMessage(mod.shodan.GetDatabase(), message.Message)
+	err = DBUpsertMessage(mod.shodan.GetDatabase(), message.Message)
 	if err != nil {
 		log.Printf("logger: err message: %s\n", err.Error())
 		return

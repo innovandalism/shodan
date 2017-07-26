@@ -56,7 +56,7 @@ func riot() {
 func writeGithash() {
 	hash := getGithash()
 	if getGitIsDirty() {
-		hash = "HEAD"
+		hash = hash + "~HEAD"
 	}
 	gitConfigFile := `package config
 

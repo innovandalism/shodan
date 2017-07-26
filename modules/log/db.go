@@ -1,4 +1,4 @@
-package shodan
+package log
 
 import (
 	"database/sql"
