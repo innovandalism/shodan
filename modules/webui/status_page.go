@@ -8,7 +8,7 @@ import (
 
 func handleStatusPage(w http.ResponseWriter, r *http.Request) {
 	discord := mod.shodan.GetDiscord()
-	ug, err := discord.UserGuilds()
+	ug, err := discord.UserGuilds(100, "", "")
 	if err != nil {
 		panic(err)
 	}

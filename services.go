@@ -3,12 +3,16 @@ package shodan
 import (
 	"database/sql"
 	"fmt"
-	"github.com/bwmarrin/discordgo"
-	"github.com/gorilla/mux"
-	_ "github.com/lib/pq"
-	"gopkg.in/redis.v5"
+	"log"
 	"net/http"
 	"time"
+
+	"github.com/bwmarrin/discordgo"
+	"github.com/gorilla/mux"
+	redis "gopkg.in/redis.v5"
+
+	// posthgres driver for database/sql
+	_ "github.com/lib/pq"
 )
 
 var (
@@ -32,6 +36,14 @@ func InitDiscord(token string) (*discordgo.Session, error) {
 	discord.State.User, err = discord.User("@me")
 	if err != nil {
 		return nil, err
+	}
+	log.Printf("Discord Bot %s is connected to\n", discord.State.User.Username)
+	userGuilds, err := discord.UserGuilds(100, "", "")
+	if err != nil {
+		return nil, err
+	}
+	for _, userGuild := range userGuilds {
+		log.Printf(" - [%s] %s\n", userGuild.ID, userGuild.Name)
 	}
 	return discord, nil
 }

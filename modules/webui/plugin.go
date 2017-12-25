@@ -1,12 +1,11 @@
 package webui
 
 import (
-	assetfs "github.com/elazarl/go-bindata-assetfs"
-	"github.com/innovandalism/shodan"
-	"github.com/innovandalism/shodan/bindata"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/innovandalism/shodan"
 )
 
 // Module holds data for this module and implements the shodan.Module interface
@@ -38,12 +37,7 @@ func (m *Module) Attach(session shodan.Shodan) {
 		log.Printf("Serving webui from %s\n", m.webroot)
 		session.GetMux().PathPrefix("/ui/").Handler(http.StripPrefix("/ui/", http.FileServer(http.Dir(m.webroot))))
 	} else {
-		log.Print("Serving webui from bindata\n")
-		session.GetMux().PathPrefix("/ui/").Handler(http.StripPrefix("/ui/", http.FileServer(getPublicAssetFS())))
+		shodan.ReportThreadError(true, shodan.Error("No webui path provided"))
 	}
 	session.GetMux().Handle("/", http.RedirectHandler("/ui/", 301))
-}
-
-func getPublicAssetFS() *assetfs.AssetFS {
-	return &assetfs.AssetFS{Asset: bindata.Asset, AssetDir: bindata.AssetDir, AssetInfo: bindata.AssetInfo, Prefix: "assets/webui/public"}
 }

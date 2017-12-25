@@ -2,6 +2,7 @@ package shodan
 
 import (
 	"database/sql"
+
 	discordgo "github.com/bwmarrin/discordgo"
 	"github.com/gorilla/mux"
 )
@@ -53,7 +54,9 @@ func (session *shodanSession) GetRedis() KVS {
 func (session *shodanSession) Bootstrap() error {
 	session.cmdStack.Attach(session)
 	session.moduleLoader.Attach(session)
-	session.discord.Open()
-
+	err := session.discord.Open()
+	if err != nil {
+		return err
+	}
 	return nil
 }

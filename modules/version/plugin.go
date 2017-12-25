@@ -1,9 +1,10 @@
 package version
 
 import (
-	"github.com/innovandalism/shodan"
 	"runtime"
 	"time"
+
+	"github.com/innovandalism/shodan"
 )
 
 // Module holds data for this module and implements the shodan.Module interface
@@ -19,7 +20,7 @@ func init() {
 }
 
 // GetIdentifier returns the identifier for this module
-func (_ *Module) GetIdentifier() string {
+func (*Module) GetIdentifier() string {
 	return "version"
 }
 

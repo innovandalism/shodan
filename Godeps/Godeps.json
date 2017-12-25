@@ -8,8 +8,8 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/bwmarrin/discordgo",
-			"Comment": "v0.15.0",
-			"Rev": "5835676872d7fa65ee37b32672079c4ede2c1855"
+			"Comment": "v0.17.0-2-g9ce7456",
+			"Rev": "9ce745633f5df2849c8f03d7e8cd0b1fb6d35001"
 		},
 		{
 			"ImportPath": "github.com/certifi/gocertifi",

@@ -2,6 +2,7 @@ package shodan
 
 import (
 	"fmt"
+
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -39,7 +40,7 @@ func DUGetUserGuilds(token string) ([]*discordgo.UserGuild, error) {
 	var err error
 	err = dUDo(token, func(s *discordgo.Session) error {
 
-		u, err = s.UserGuilds()
+		u, err = s.UserGuilds(100, "", "")
 		if err != nil {
 			err = WrapError(err)
 			return err

@@ -4,11 +4,13 @@ package shodan
 import (
 	"errors"
 	"fmt"
-	"github.com/getsentry/raven-go"
-	"github.com/innovandalism/shodan/config"
 	"math/rand"
 	"os"
 	"time"
+
+	raven "github.com/getsentry/raven-go"
+
+	"github.com/innovandalism/shodan/config"
 )
 
 // Run invokes the main loop, core services like HTTP and discordgo.
@@ -68,7 +70,8 @@ func Run() {
 	// raven should receive the git hash when crashing
 	raven.SetRelease(config.VersionGitHash)
 
-	session.Bootstrap()
+	err = session.Bootstrap()
+	panicOnError(err)
 
 	// because discordgo returns immediately and starts its goroutines in the background, we defer closing the session here
 	defer session.GetDiscord().Close()
