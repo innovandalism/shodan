@@ -3,7 +3,7 @@ package config
 const (
 	VersionMajor    int = 1
 	VersionMinor    int = 0
-	VersionRevision int = 4
+	VersionRevision int = 5
 )
 
 var (
