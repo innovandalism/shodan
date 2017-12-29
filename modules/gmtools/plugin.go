@@ -1,4 +1,4 @@
-package classify
+package gmtools
 
 import (
 	"github.com/innovandalism/shodan"
@@ -14,9 +14,10 @@ func init() {
 }
 
 func (_ *Module) GetIdentifier() string {
-	return "classify"
+	return "gmtools"
 }
 
 func (m *Module) Attach(session shodan.Shodan) {
-
+	session.GetCommandStack().RegisterCommand(&RollCommand{})
+	session.GetCommandStack().RegisterCommand(&CoinCommand{})
 }

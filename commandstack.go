@@ -1,8 +1,10 @@
 package shodan
 
 import (
-	"github.com/bwmarrin/discordgo"
+	"log"
 	"strings"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 // The Command interface enables the implementer to be loaded as a command
@@ -58,6 +60,7 @@ func (commandStack *CommandStack) Attach(shodan Shodan) {
 
 // RegisterCommand adds a command to the stack
 func (commandStack *CommandStack) RegisterCommand(c Command) {
+	log.Printf("CommandStack: Registering command %s\n", strings.Join(c.GetNames(), ","))
 	commandStack.commands = append(commandStack.commands, c)
 }
 

@@ -1,6 +1,6 @@
-We welcome new modules and improvements for shodan.
-
 Any contributions to be considered must be 
  * submitted via GitHub pull request
  * fully owned by you, or under a permissive MIT-compatible license
  * licensed under the MIT license 
+
+New modules might not belong in core. If you need to extend shodan, just copy `bin/shodan/main.go` into a new package and add your own module imports.

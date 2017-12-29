@@ -9,22 +9,33 @@ A modular bot for Discord.
 ### Requirements
 
 * Go 1.7, tested with 1.7.4 specifically
-* [go-bindata](https://github.com/jteeuwen/go-bindata) in GOPATH (for development)
+* Godep (for development)
 
 ## Development
 
-After commiting a feature, make sure to run `go run build.go` to regenerate embedded binary data and configuration. If you submit a pull request to core, a maintainer will do it for you.
+After commiting a feature, make sure to run `go run build.go` to regenerate the configuration.
 
 ## Running SHODAN
 
-These are the command line switches currently available in core builds.
+These are the environment variables currently available in core builds.
 
 ### Core
 
-* `-redis=<redis uri>` - Redis URI - required.
-* `-postgres=<postgres uri>` - Postgres URI - required.
-* `-token=<token>` - Provide a Discord token. Userbots are not officially supported and will only receive gateway events.
-* `-web_addr=<addr>` - Provide an IP address and port to listen on. For instance, `127.0.0.1:9090` will make SHODAN listen on the loopback device at port 9090.
-* `-m_<modulename>` - Boolean flags to enable certain modules. `log`, `oauth`, `webui`, `version` are available right now.
+* `DISCORD_TOKEN` Authentication token for the bot account
+* `WEB_ADDR` HTTP listener bind address
+* `REDIS_URL` Redis URL
+* `POSTGRES_URL` Postgres URL
+* `M_MODULENAME` Load MODULENAME.
 
-*More documentation pending, catch me (Gant) on [Discord](https://discord.gg/D4aMvJ7) if you need help.*
+#### mod_oauth
+
+* `OAUTH_CLIENTID` Client ID
+* `OAUTH_SECRET` Client Secret
+* `OAUTH_REDIRECT` OAuth Callback URL (frontend host + `/oauth/callback/`)
+
+#### mod_webui
+
+* `OAUTH_JWTSECRET` JWT Secret (something random)
+
+
+*More documentation pending, catch me on [Discord](https://discord.gg/X7syZeQ) if you need help.*

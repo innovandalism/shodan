@@ -1,6 +1,7 @@
 package shodan
 
 import (
+	"log"
 	"os"
 	"strings"
 )
@@ -47,6 +48,7 @@ func (loader *ModuleLoader) Attach(session Shodan) {
 	for _, moduleInstance := range Loader.Modules {
 		m := moduleInstance.Module
 		if moduleInstance.Enabled {
+			log.Printf("ModuleLoader: Attaching %s", moduleInstance.Module.GetIdentifier())
 			m.Attach(session)
 		}
 	}

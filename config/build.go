@@ -1,6 +1,3 @@
-// THE CONTENTS OF THIS FILE ARE THE COMPILE-TIME CONFIGURATION FOR SHODAN
-// THIS FILE MIGHT BE AUTO-GENERATED IN THE FUTURE
-
 package config
 
 const (
@@ -11,4 +8,12 @@ const (
 
 var (
 	SingleGuildMode = ""
+
+	OEMName        = "SHODAN"
+	OEMDescription = "Core build of SHODAN, the Discord Bot Framework"
+	OEMVendor      = "Innovandalism"
+	OEMURI         = "https://github.com/innovandalism/shodan/"
+	OEMVendorURI   = "https://innovandalism.eu"
+	OEMBuildfile   = "https://github.com/innovandalism/shodan/"
+	OEMAnecdote    = "This build of Shodan has super-kapow-powers."
 )

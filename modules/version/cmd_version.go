@@ -2,11 +2,12 @@ package version
 
 import (
 	"fmt"
+	"runtime"
+	"time"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/innovandalism/shodan"
 	"github.com/innovandalism/shodan/config"
-	"runtime"
-	"time"
 )
 
 // VersionCommand holds information for this command, including bot startup time and a MemStats struct pointer
@@ -25,18 +26,18 @@ func (vc *VersionCommand) Invoke(ci *shodan.CommandInvocation) error {
 	v := fmt.Sprintf("%d.%d.%d", config.VersionMajor, config.VersionMinor, config.VersionRevision)
 	me := &discordgo.MessageEmbed{
 		Type:        "rich",
-		Title:       "SHODAN",
-		Description: "A platform for building discordgo Bots in Go",
+		Title:       config.OEMName,
+		Description: config.OEMDescription,
 		Fields: []*discordgo.MessageEmbedField{
 			{"Version", v, true},
 			{"Uptime", time.Now().Sub(vc.startupTime).String(), true},
 			{"Git Hash", config.VersionGitHash, false},
-			{"Code", "https://github.com/innovandalism/shodan", false},
+			{"Code", config.OEMBuildfile, false},
 		},
-		URL:    "https://github.com/innovandalism/shodan",
-		Author: &discordgo.MessageEmbedAuthor{URL: "https://innovandalism.eu", Name: "Innovandalism"},
+		URL:    config.OEMVendorURI,
+		Author: &discordgo.MessageEmbedAuthor{URL: config.OEMVendorURI, Name: config.OEMVendor},
 		Footer: &discordgo.MessageEmbedFooter{
-			Text: "This build of Shodan has super-kapow-powers.",
+			Text: config.OEMAnecdote,
 		},
 	}
 	err := ci.Helpers.ReplyEmbed(me)
