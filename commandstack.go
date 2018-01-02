@@ -64,6 +64,28 @@ func (commandStack *CommandStack) RegisterCommand(c Command) {
 	commandStack.commands = append(commandStack.commands, c)
 }
 
+// GetCommandList returns a map of all commands.
+// The includeAliases variable determines if a command can have multiple entries, one for each alias.
+// Otherwise only the first alias is returned
+func (commandStack *CommandStack) GetCommandList(includeAliases bool) map[string]Command {
+	res := make(map[string]Command)
+	for _, c := range commandStack.commands {
+		names := c.GetNames()
+		if includeAliases {
+			for _, name := range names {
+				res[name] = c
+			}
+		} else {
+			// if someone is ever so smart to register a command with no names...
+			if len(names) < 1 {
+				continue
+			}
+			res[names[0]] = c
+		}
+	}
+	return res
+}
+
 // Checks for permissions, matches the invocation to a command and invokes the command handler
 func (commandStack *CommandStack) dispatchCommand(ci *CommandInvocation) error {
 	var command Command

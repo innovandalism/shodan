@@ -3,11 +3,13 @@ package shodan
 import (
 	"errors"
 	"fmt"
-	"github.com/getsentry/raven-go"
-	"github.com/innovandalism/shodan/config"
 	"net/http"
 	"os"
 	"runtime"
+
+	raven "github.com/getsentry/raven-go"
+
+	"github.com/innovandalism/shodan/config"
 )
 
 var errorChannel chan *ThreadError

@@ -30,7 +30,7 @@ func (session *shodanSession) GetDiscord() *discordgo.Session {
 	return session.discord
 }
 
-// GetDatabase returns the DAL (Database Access Layer)
+// GetDatabase returns the DB driver. Returns nil if no database is attached.
 func (session *shodanSession) GetDatabase() *sql.DB {
 	return session.database
 }
@@ -53,8 +53,11 @@ func (session *shodanSession) GetRedis() KVS {
 // Bootstrap wires all services up with each other
 func (session *shodanSession) Bootstrap() error {
 	session.cmdStack.Attach(session)
-	session.moduleLoader.Attach(session)
-	err := session.discord.Open()
+	err := session.moduleLoader.Attach(session)
+	if err != nil {
+		return err
+	}
+	err = session.discord.Open()
 	if err != nil {
 		return err
 	}

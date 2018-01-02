@@ -19,7 +19,11 @@ func (m *Module) GetIdentifier() string {
 }
 
 // Attach attaches this module to a Shodan session
-func (m *Module) Attach(shodan shodan.Shodan) {
-	shodan.GetCommandStack().RegisterCommand(&ChannelCmd{})
-	shodan.GetDiscord().AddHandler(getHandleGuildMemberAdd(shodan))
+func (m *Module) Attach(session shodan.Shodan) error {
+	if session.GetRedis() == nil {
+		return shodan.Error("mod_greet: redis is nil; make sure the redis driver loads or disable this module")
+	}
+	session.GetCommandStack().RegisterCommand(&ChannelCmd{})
+	session.GetDiscord().AddHandler(getHandleGuildMemberAdd(session))
+	return nil
 }

@@ -27,7 +27,7 @@ func (_ *Module) GetIdentifier() string {
 }
 
 // Attach attaches this module to a Shodan session
-func (m *Module) Attach(session shodan.Shodan) {
+func (m *Module) Attach(session shodan.Shodan) error {
 	m.shodan = session
 
 	session.GetMux().HandleFunc("/app.json", handleGetAppInfo)
@@ -40,4 +40,5 @@ func (m *Module) Attach(session shodan.Shodan) {
 		shodan.ReportThreadError(true, shodan.Error("No webui path provided"))
 	}
 	session.GetMux().Handle("/", http.RedirectHandler("/ui/", 301))
+	return nil
 }

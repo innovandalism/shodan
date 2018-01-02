@@ -24,9 +24,13 @@ func (m *Module) GetIdentifier() string {
 }
 
 // Attach attaches this module to a Shodan session
-func (m *Module) Attach(session shodan.Shodan) {
+func (m *Module) Attach(session shodan.Shodan) error {
 	m.shodan = session
+	if session.GetDatabase() == nil {
+		return shodan.Error("mod_log: database is nil; please make sure you're connected to PG or disable the module")
+	}
 	session.GetDiscord().AddHandler(onMessageCreate)
+	return nil
 }
 
 func onMessageCreate(s *discordgo.Session, message *discordgo.MessageCreate) {

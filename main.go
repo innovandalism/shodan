@@ -3,13 +3,12 @@ package shodan
 
 import (
 	"errors"
-	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"time"
 
 	raven "github.com/getsentry/raven-go"
-
 	"github.com/innovandalism/shodan/config"
 )
 
@@ -56,10 +55,14 @@ func Run() {
 	panicOnError(err)
 
 	session.kvs, err = InitRedis(redisURI)
-	panicOnError(err)
+	if err != nil {
+		log.Printf("redis not initialized: %s - you can ignore this if you're running without a KVS\n", err)
+	}
 
 	session.database, err = InitPostgres(pgURI)
-	panicOnError(err)
+	if err != nil {
+		log.Printf("pgsql not initialized: %s - you can ignore this if you're running without a DB\n", err)
+	}
 
 	session.discord, err = InitDiscord(token)
 	panicOnError(err)
@@ -87,9 +90,10 @@ func Run() {
 			quit = true
 		case threadError := <-threadErrorChannel:
 			if threadError.IsFatal {
+				log.Printf("fatal thread error: %s\n", threadError.Error)
 				os.Exit(0xDEAD)
 			} else {
-				fmt.Fprintf(os.Stderr, "non-fatal thread error: %s\n", threadError.Error)
+				log.Printf("non-fatal thread error: %s\n", threadError.Error)
 			}
 		}
 		if quit {

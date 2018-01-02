@@ -17,7 +17,8 @@ func (_ *Module) GetIdentifier() string {
 	return "gmtools"
 }
 
-func (m *Module) Attach(session shodan.Shodan) {
+func (m *Module) Attach(session shodan.Shodan) error {
 	session.GetCommandStack().RegisterCommand(&RollCommand{})
 	session.GetCommandStack().RegisterCommand(&CoinCommand{})
+	return nil
 }

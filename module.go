@@ -23,7 +23,7 @@ type ModuleInstance struct {
 // Modules are, by nature of them being loaded though init(), global.
 type Module interface {
 	GetIdentifier() string
-	Attach(Shodan)
+	Attach(Shodan) error
 }
 
 // A ModuleLoader holds ModuleInstances
@@ -44,12 +44,26 @@ func (loader *ModuleLoader) LoadModule(m Module) {
 // Attach attaches enabled modules to the session.
 //
 // After this point it does not matter if a module is marked as enabled or not in the ModuleInstance
-func (loader *ModuleLoader) Attach(session Shodan) {
+func (loader *ModuleLoader) Attach(session Shodan) error {
 	for _, moduleInstance := range Loader.Modules {
 		m := moduleInstance.Module
 		if moduleInstance.Enabled {
 			log.Printf("ModuleLoader: Attaching %s", moduleInstance.Module.GetIdentifier())
-			m.Attach(session)
+			err := m.Attach(session)
+			if err != nil {
+				return err
+			}
 		}
 	}
+	return nil
+}
+
+// GetModuleList gets a map of all module names. The value of the map determines if the module is enabled or not.
+func (loader *ModuleLoader) GetModuleList() map[string]bool {
+	res := make(map[string]bool)
+	for _, m := range loader.Modules {
+		name := m.Module.GetIdentifier()
+		res[name] = m.Enabled
+	}
+	return res
 }
