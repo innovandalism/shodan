@@ -14,7 +14,7 @@ var (
 	// If it is the later, the API will only serve that one server.
 	SingleGuildMode = ""
 
-	// OEMName is the name of the Bot shown in the version command
+	// OEMName is the name of the bot shown in the version command
 	OEMName = "SHODAN"
 	// OEMDescription is the description of the bot shown in the version command
 	OEMDescription = "Core build of SHODAN, the Discord Bot Framework"
